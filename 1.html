@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4e342e">
+    <title>Sổ Ghi Nợ - Xôi & Cafe</title>
+    <style>
+        /* CSS Giao diện cơ bản */
+        :root {
+            --bg-main: #f4f6f9; --coffee-dark: #4e342e; --coffee-medium: #795548;
+            --coffee-light: #d7ccc8; --accent: #e65100; --text-dark: #2c3e50; --white: #ffffff; --radius: 12px;
+            --red: #e53935; --green: #43a047;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-main); color: var(--text-dark); -webkit-tap-highlight-color: transparent; overscroll-behavior-y: contain; }
+        
+        .app-container { max-width: 600px; margin: 0 auto; padding: 16px; padding-bottom: 80px; contain: content; }
+        .header { text-align: center; padding: 10px 0 20px 0; color: var(--coffee-dark); border-bottom: 2px dashed #ccc; margin-bottom: 20px; }
+        .header h1 { font-size: 1.5rem; margin-bottom: 5px; }
+        
+        .summary-card { background: var(--coffee-dark); color: var(--white); padding: 20px; border-radius: var(--radius); text-align: center; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .summary-card.history-card { background: var(--green); }
+        .summary-card h2 { font-size: 1.2rem; font-weight: normal; margin-bottom: 8px; color: rgba(255,255,255,0.8); }
+        .summary-card .total-amount { font-size: 2rem; font-weight: bold; color: #ffb300; }
+        .summary-card.history-card .total-amount { color: #fff; }
+        
+        /* Form & Row */
+        .form-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .form-row .form-group { margin-bottom: 0; flex: 1; position: relative;}
+        .form-group { margin-bottom: 15px; position: relative; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: #555; }
+        .req { color: var(--red); font-weight: bold; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: var(--white); transition: border-color 0.2s ease; font-family: inherit;}
+        .form-control:focus { outline: none; border-color: var(--coffee-dark); }
+        
+        /* Auto-suggest dropdown */
+        .suggestions-box { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 150px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 4px;}
+        .suggestion-item { padding: 10px 12px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; font-size: 0.95rem; }
+        .old-debt-warning { color: var(--red); font-size: 0.8rem; font-weight: 600; margin-top: 5px; display: none; }
+
+        .btn-submit { width: 100%; background-color: var(--coffee-medium); color: var(--white); border: none; padding: 14px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;}
+        .btn-submit:active { transform: scale(0.98); }
+        
+        /* Bộ chọn số lượng */
+        .stepper-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; background: white; padding: 10px; border-radius: 12px; border: 1px solid #ddd; box-shadow: 0 1px 3px rgba(0,0,0,0.02);}
+        .btn-step { background: #f0f0f0; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; font-weight: bold; color: var(--coffee-dark); cursor: pointer; display: flex; align-items: center; justify-content: center;}
+        .qty-input-center { width: 60px; text-align: center; font-size: 1.5rem; font-weight: bold; border: none; color: var(--accent); background: transparent; outline: none; }
+        
+        /* Bộ lọc Tab Nhỏ & Chip Menu */
+        .menu-filter-row { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 5px; }
+        .filter-tab { padding: 6px 14px; background: #e0e0e0; border-radius: 20px; font-size: 0.85rem; font-weight: 600; color: #555; cursor: pointer; white-space: nowrap;}
+        .filter-tab.active { background: var(--coffee-dark); color: white; }
+        
+        .chip-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; max-height: 220px; overflow-y: auto;}
+        .chip { background: white; border: 1px solid #ddd; padding: 8px 12px; border-radius: 12px; font-size: 0.9rem; cursor: pointer; color: #333; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; min-width: 80px;}
+        .chip.best-seller { border-color: #ff9800; background: #fffdf5; }
+        .chip-name { font-weight: 600; margin-bottom: 2px; }
+        .chip-price { font-size: 0.75rem; color: var(--accent); }
+        
+        /* Tags & Tiền */
+        .tags-input-container { width: 100%; min-height: 48px; padding: 8px; border: 1px solid #ddd; border-radius: 8px; background: var(--white); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .selected-tag { background-color: var(--coffee-medium); color: white; padding: 5px 12px; border-radius: 16px; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; }
+        .remove-tag { background-color: rgba(255,255,255,0.25); border-radius: 50%; width: 20px; height: 20px; display: inline-flex; justify-content: center; align-items: center; font-size: 0.8rem; cursor: pointer; }
+        .price-override-btn { position: absolute; right: 10px; top: 35px; background: #ffe0b2; color: #e65100; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: none; }
+        
+        /* Segment Control & Toggle */
+        .segment-control { display: flex; background: #f0f0f0; border-radius: 8px; padding: 4px; gap: 4px; width: 100%; }
+        .segment-btn { flex: 1; text-align: center; padding: 10px 5px; border-radius: 6px; cursor: pointer; color: #777; font-size: 0.85rem; font-weight: 600; transition: 0.2s;}
+        .segment-btn.active { background: white; color: var(--coffee-dark); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--green); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Tabs Bottom Nav */
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--white); display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; padding: 10px 0; color: #999; font-weight: 600; cursor: pointer; border-top: 3px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-item.active { color: var(--coffee-dark); border-top-color: var(--coffee-dark); background-color: #fafafa; }
+
+        /* Danh sách & Admin & History */
+        .debt-item { background: var(--white); padding: 16px; border-radius: var(--radius); margin-bottom: 12px; border-left: 5px solid var(--coffee-medium); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04);}
+        .history-item { border-left: 5px solid var(--green); opacity: 0.9;}
+        .history-item .debt-amount { color: var(--green); }
+        .btn-pay { background-color: #4CAF50; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;}
+        .btn-action { color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; margin-left: 5px;}
+        
+        /* Trang trượt & Popup */
+        .slide-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-main); z-index: 1500; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); overflow-y: auto; display: flex; flex-direction: column; }
+        .slide-page.open { transform: translateX(0); }
+        .slide-header { display: flex; align-items: center; padding: 15px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 10; }
+        .btn-back { font-size: 1.5rem; background: none; border: none; padding: 5px 15px 5px 5px; cursor: pointer; font-weight: bold; color: var(--coffee-dark); z-index: 20;}
+        .slide-content { padding: 16px; flex: 1; }
+        
+        .menu-item-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #eee; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-box { background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 12px; transform: translateY(20px); transition: transform 0.2s; }
+        .modal-overlay.active .modal-box { transform: translateY(0); }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+        .btn-modal { padding: 10px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
+        /* TOAST NOTIFICATION */
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px;}
+        .toast { background: #333; color: white; padding: 12px 20px; border-radius: 8px; font-weight: 500; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); opacity: 0; transform: translateY(-20px); transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; align-items: center; gap: 8px;}
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: var(--green); }
+        .toast.error { background: var(--red); }
+    </style>
+</head>
+<body>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<div class="app-container">
+    <div class="header" id="mainHeader">
+        <h1>☕ Sổ Ghi Nợ</h1>
+        <p>Xôi & Đồ Uống</p>
+    </div>
+
+    <!-- TAB 1: NHẬP LIỆU -->
+    <div id="tab-input" class="tab-content active">
+        <form id="debtForm">
+            <div class="form-row">
+                <div class="form-group" style="flex: 1.5;">
+                    <label>Tên người nợ <span class="req">(*)</span></label>
+                    <input type="text" id="customerName" class="form-control" placeholder="Vd: Anh Tuấn" autocomplete="off" required>
+                    <div id="nameSuggestions" class="suggestions-box"></div>
+                    <div id="oldDebtWarning" class="old-debt-warning"></div>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Số điện thoại</label>
+                    <input type="tel" id="customerPhone" class="form-control" placeholder="Tùy chọn">
+                </div>
+            </div>
+
+            <div class="stepper-container">
+                <button type="button" class="btn-step" onclick="changeQty(-1)">-</button>
+                <input type="number" id="qtyInput" class="qty-input-center" value="1" min="1">
+                <button type="button" class="btn-step" onclick="changeQty(1)">+</button>
+            </div>
+            
+            <div style="background: white; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px;">
+                <div class="menu-filter-row">
+                    <span class="filter-tab active" onclick="filterMenu('all')">Tất cả</span>
+                    <span class="filter-tab" onclick="filterMenu('food')">Đồ ăn 🍛</span>
+                    <span class="filter-tab" onclick="filterMenu('drink')">Đồ uống 🍹</span>
+                    <span class="filter-tab" onclick="filterMenu('other')">Khác 🏷️</span>
+                </div>
+                <div class="chip-container" id="itemChips"><span style="font-size: 0.85rem; color: #888;">Đang tải danh mục...</span></div>
+            </div>
+
+            <div class="form-group">
+                <label>Chi tiết món nợ <span class="req">(*)</span></label>
+                <div id="selectedTagsContainer" class="tags-input-container"><span style="color:#aaa; font-size:0.9rem;">Trống...</span></div>
+                <input type="hidden" id="hiddenItemsString" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label>Ghi chú đơn</label>
+                    <input type="text" id="orderNote" class="form-control" placeholder="Vd: Ít đá, không hành...">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Thời gian ghi (Tùy chọn)</label>
+                    <input type="datetime-local" id="customTime" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tổng số tiền (VNĐ) <span class="req">(*)</span></label>
+                <input type="number" id="amount" class="form-control" placeholder="Hệ thống tự tính..." required>
+                <button type="button" id="resetPriceBtn" class="price-override-btn">↺ Tính lại</button>
+            </div>
+            
+            <button type="submit" class="btn-submit" id="submitBtn">Lưu Vào Sổ Nợ</button>
+        </form>
+    </div>
+
+    <!-- TAB 2: DANH SÁCH -->
+    <div id="tab-list" class="tab-content">
+        <div class="summary-card">
+            <h2>Tổng Khách Đang Nợ</h2>
+            <div class="total-amount" id="totalDebtDisplay">0 ₫</div>
+        </div>
+        <div class="debt-list" id="debtList"></div>
+    </div>
+    
+    <!-- TAB 3: LỊCH SỬ THU TIỀN -->
+    <div id="tab-history" class="tab-content">
+        <div class="summary-card history-card">
+            <h2>Đã Thu Của Khách (Tổng)</h2>
+            <div class="total-amount" id="totalHistoryDisplay">0 ₫</div>
+        </div>
+        <div class="debt-list" id="historyList"></div>
+    </div>
+
+    <!-- TAB 4: ADMIN -->
+    <div id="tab-menu" class="tab-content">
+        <div style="font-size: 1.3rem; font-weight: 900; color: #1f2937; margin-bottom: 20px;">ADMIN</div>
+        <div style="background: white; border-radius: 12px; border: 1px solid #f3f4f6; overflow: hidden;">
+            <div id="openMenuManagerBtn" style="padding: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 500;">☰ Quản lý danh mục món</span>
+                <span style="color: #ccc; font-size: 1.2rem;">›</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TRANG TRƯỢT: QUẢN LÝ DANH MỤC -->
+<div id="menuManagerPage" class="slide-page">
+    <div class="slide-header">
+        <button class="btn-back" id="closeMenuManagerBtn">←</button>
+        <div style="font-size: 1.1rem; font-weight: bold; color: var(--coffee-dark);">Quản lý Danh mục</div>
+    </div>
+    <div class="slide-content">
+        <form id="menuForm" style="background: white; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 20px;">
+            <div class="form-row">
+                <div class="form-group" style="flex: 2;"><label>Tên món</label><input type="text" id="newMenuItem" class="form-control" placeholder="Vd: Xôi chả" required></div>
+                <div class="form-group" style="flex: 1.5;"><label>Giá (VNĐ)</label><input type="number" id="newMenuPrice" class="form-control" required></div>
+            </div>
+            <div class="form-group">
+                <label>Phân loại món</label>
+                <div class="segment-control" id="newMenuCategoryWrapper">
+                    <div class="segment-btn active" data-val="food" onclick="setSegment(this, 'newMenuCategory')">Đồ ăn 🍛</div>
+                    <div class="segment-btn" data-val="drink" onclick="setSegment(this, 'newMenuCategory')">Đồ uống 🍹</div>
+                    <div class="segment-btn" data-val="other" onclick="setSegment(this, 'newMenuCategory')">Khác 🏷️</div>
+                </div>
+                <input type="hidden" id="newMenuCategory" value="food">
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 5px 0 10px 0;">
+                <span style="font-size: 0.9rem; font-weight: 600; color: #555;">Bán chạy (Best Seller) ⭐</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="newMenuBestSeller">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <button type="submit" class="btn-submit" style="background-color: #4CAF50; margin-top: 10px;">+ Lưu Món Mới</button>
+        </form>
+        <h3 style="font-size: 1rem; margin: 20px 0 10px 0; color: #555;">Danh sách hiện tại</h3>
+        <div id="menuListManager"></div>
+    </div>
+</div>
+
+<!-- POPUP (MODAL): SỬA MÓN -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+        <h3 style="margin-bottom: 15px; color: var(--coffee-dark);">Sửa thông tin món</h3>
+        <div class="form-group"><label>Tên món</label><input type="text" id="editItemName" class="form-control"></div>
+        <div class="form-group"><label>Giá tiền (VNĐ)</label><input type="number" id="editItemPrice" class="form-control"></div>
+        
+        <div class="form-group">
+            <label>Phân loại món</label>
+            <div class="segment-control" id="editMenuCategoryWrapper">
+                <div class="segment-btn" data-val="food" onclick="setSegment(this, 'editMenuCategory')">Đồ ăn</div>
+                <div class="segment-btn" data-val="drink" onclick="setSegment(this, 'editMenuCategory')">Đồ uống</div>
+                <div class="segment-btn" data-val="other" onclick="setSegment(this, 'editMenuCategory')">Khác</div>
+            </div>
+            <input type="hidden" id="editMenuCategory">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 5px 0 15px 0; border-bottom: 1px solid #eee;">
+            <span style="font-size: 0.9rem; font-weight: 600; color: #555;">Bán chạy (Best Seller) ⭐</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="editMenuBestSeller">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal" style="background: #e0e0e0; color: #333;" onclick="closeEditModal()">Hủy</button>
+            <button class="btn-modal" style="background: #4CAF50; color: white;" id="saveEditBtn">Lưu Thay Đổi</button>
+        </div>
+    </div>
+</div>
+
+<!-- THANH ĐIỀU HƯỚNG ĐÁY (4 TABS) -->
+<div class="bottom-nav">
+    <div class="nav-item active" data-target="tab-input"><span class="icon">✍️</span><span class="text">Nhập liệu</span></div>
+    <div class="nav-item" data-target="tab-list"><span class="icon">📋</span><span class="text">Danh sách</span></div>
+    <div class="nav-item" data-target="tab-history"><span class="icon">🕒</span><span class="text">Lịch sử</span></div>
+    <div class="nav-item" data-target="tab-menu"><span class="icon">⚙️</span><span class="text">Admin</span></div>
+</div>
+
+<!-- Firebase Scripts -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+
+<script>
+    // --- 0. HỆ THỐNG TOAST ---
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = (type === 'success' ? '✅ ' : '⚠️ ') + message;
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // --- 1. UI UTILS ---
+    const formatCurrency = (number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+
+    function setLocalNow() {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('customTime').value = now.toISOString().slice(0,16);
+    }
+    setLocalNow();
+
+    window.setSegment = function(element, hiddenInputId) {
+        const wrapper = element.parentElement;
+        wrapper.querySelectorAll('.segment-btn').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById(hiddenInputId).value = element.getAttribute('data-val');
+    }
+
+    const navItems = document.querySelectorAll('.nav-item');
+    const tabContents = document.querySelectorAll('.tab-content');
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            navItems.forEach(n => n.classList.remove('active'));
+            tabContents.forEach(t => t.classList.remove('active'));
+            item.classList.add('active');
+            document.getElementById(item.getAttribute('data-target')).classList.add('active');
+            document.getElementById('mainHeader').style.display = item.getAttribute('data-target') === 'tab-menu' ? 'none' : 'block';
+            window.scrollTo({ top: 0 });
+        });
+    });
+
+    // --- 2. FIREBASE CONFIG ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyA86Poty8VhhhbJUQQQ2NXCfGXjOgJGePY",
+        authDomain: "ghino-33b9d.firebaseapp.com",
+        projectId: "ghino-33b9d",
+        storageBucket: "ghino-33b9d.firebasestorage.app",
+        messagingSenderId: "551462145057",
+        appId: "1:551462145057:web:76ef161ec62c4b6773a760",
+        databaseURL: "https://ghino-33b9d-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const debtsRef = db.ref('debts');
+    const historyRef = db.ref('history'); // Node mới lưu lịch sử
+    const menuRef = db.ref('menuItems'); 
+    let currentDebtsMap = {}; 
+
+    // --- 3. AUTO-SUGGEST ---
+    const nameInput = document.getElementById('customerName');
+    const phoneInput = document.getElementById('customerPhone');
+    const suggestionsBox = document.getElementById('nameSuggestions');
+    const oldDebtWarning = document.getElementById('oldDebtWarning');
+
+    nameInput.addEventListener('input', function() {
+        const val = this.value.trim().toLowerCase();
+        suggestionsBox.innerHTML = '';
+        oldDebtWarning.style.display = 'none';
+        if (!val) return (suggestionsBox.style.display = 'none');
+
+        let matches = Object.values(currentDebtsMap).filter(debt => debt.name.toLowerCase().includes(val));
+        if (matches.length > 0) {
+            matches.forEach(debt => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = `<span>👤 ${debt.name}</span> <span style="color:#888; font-size:0.8rem">${debt.phone || ''}</span>`;
+                div.addEventListener('click', () => {
+                    nameInput.value = debt.name;
+                    phoneInput.value = debt.phone || '';
+                    suggestionsBox.style.display = 'none';
+                    oldDebtWarning.innerHTML = `⚠️ Đang nợ: ${formatCurrency(debt.amount)} (Sẽ gộp thêm)`;
+                    oldDebtWarning.style.display = 'block';
+                });
+                suggestionsBox.appendChild(div);
+            });
+            suggestionsBox.style.display = 'block';
+        } else {
+            suggestionsBox.style.display = 'none';
+        }
+    });
+    document.addEventListener('click', (e) => { if(e.target !== nameInput && e.target !== suggestionsBox) suggestionsBox.style.display = 'none'; });
+
+    // --- 4. TÍNH TIỀN & CHỌN MÓN ---
+    const qtyInput = document.getElementById('qtyInput');
+    const amountInput = document.getElementById('amount');
+    const resetPriceBtn = document.getElementById('resetPriceBtn');
+    let isPriceManuallyEdited = false;
+    let selectedTagsArray = []; 
+    let currentMenuData = []; 
+
+    window.changeQty = (change) => {
+        let current = parseInt(qtyInput.value) || 1;
+        let newVal = current + change;
+        if(newVal < 1) newVal = 1;
+        qtyInput.value = newVal;
+    }
+    amountInput.addEventListener('input', () => {
+        isPriceManuallyEdited = true;
+        resetPriceBtn.style.display = 'block'; 
+    });
+    resetPriceBtn.addEventListener('click', () => {
+        isPriceManuallyEdited = false;
+        resetPriceBtn.style.display = 'none';
+        autoCalculateTotal();
+    });
+
+    function autoCalculateTotal() {
+        if (isPriceManuallyEdited) return; 
+        const total = selectedTagsArray.reduce((sum, tag) => sum + tag.totalPrice, 0);
+        amountInput.value = total > 0 ? total : '';
+    }
+
+    function renderTags() {
+        const container = document.getElementById('selectedTagsContainer');
+        const hiddenInput = document.getElementById('hiddenItemsString');
+        if (selectedTagsArray.length === 0) {
+            container.innerHTML = '<span style="color:#aaa; font-size:0.9rem;">Trống...</span>';
+            hiddenInput.value = "";
+            autoCalculateTotal(); return;
+        }
+        container.innerHTML = '';
+        selectedTagsArray.forEach(tagObj => {
+            const el = document.createElement('span');
+            el.className = 'selected-tag';
+            el.innerHTML = `${tagObj.text} <span class="remove-tag" onclick="removeTag('${tagObj.id}')">✕</span>`;
+            container.appendChild(el);
+        });
+        hiddenInput.value = selectedTagsArray.map(t => t.text).join(', ');
+        autoCalculateTotal(); 
+    }
+
+    window.addQuickItem = function(itemName, itemPrice) {
+        let qty = parseInt(qtyInput.value);
+        if (isNaN(qty) || qty < 1) qty = 1;
+        selectedTagsArray.push({ id: Date.now().toString(), text: `${qty} ${itemName}`, totalPrice: qty * itemPrice });
+        qtyInput.value = 1; 
+        renderTags();
+    }
+    window.removeTag = function(id) {
+        selectedTagsArray = selectedTagsArray.filter(t => t.id !== id);
+        renderTags();
+    }
+
+    function getEmojiPrefix(name) {
+        const n = name.toLowerCase();
+        if (n.includes('xôi')) return '🍛 ';
+        if (n.includes('gà')) return '🍗 ';
+        if (n.includes('thịt') || n.includes('chả') || n.includes('lạp xưởng')) return '🥓 ';
+        if (n.includes('trứng')) return '🍳 ';
+        if (n.includes('cafe') || n.includes('cà phê') || n.includes('cacao')) return '☕ ';
+        if (n.includes('trà') || n.includes('matcha')) return '🍵 ';
+        if (n.includes('nước') || n.includes('ép')) return '🍹 ';
+        return '🍽️ ';
+    }
+
+    // --- 5. QUẢN LÝ DANH MỤC ---
+    const menuManagerPage = document.getElementById('menuManagerPage');
+    document.getElementById('openMenuManagerBtn').addEventListener('click', () => menuManagerPage.classList.add('open'));
+    document.getElementById('closeMenuManagerBtn').addEventListener('click', () => menuManagerPage.classList.remove('open'));
+
+    document.getElementById('menuForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('newMenuItem').value.trim();
+        const price = parseFloat(document.getElementById('newMenuPrice').value);
+        const category = document.getElementById('newMenuCategory').value; 
+        const isBestSeller = document.getElementById('newMenuBestSeller').checked; 
+        if(!name || isNaN(price)) return;
+        const finalName = getEmojiPrefix(name) + name;
+        menuRef.push({ name: finalName, price, category, isBestSeller, timestamp: Date.now() })
+            .then(() => {
+                document.getElementById('menuForm').reset();
+                document.getElementById('newMenuBestSeller').checked = false; 
+                showToast("Đã thêm món mới!");
+            }).catch(err => showToast(err.message, "error"));
+    });
+
+    let currentFilter = 'all';
+    window.filterMenu = function(cat) {
+        currentFilter = cat;
+        document.querySelectorAll('.filter-tab').forEach(el => el.classList.remove('active'));
+        event.target.classList.add('active');
+        renderMenuChips(); 
+    }
+
+    function renderMenuChips() {
+        const container = document.getElementById('itemChips');
+        container.innerHTML = '';
+        let count = 0;
+        currentMenuData.forEach(item => {
+            if (parseFloat(item.price) > 0 && (currentFilter === 'all' || item.category === currentFilter)) {
+                count++;
+                const chip = document.createElement('div');
+                chip.className = `chip ${item.isBestSeller ? 'best-seller' : ''}`;
+                chip.innerHTML = `<span class="chip-name">${item.name} ${item.isBestSeller ? '⭐' : ''}</span><span class="chip-price">${formatCurrency(item.price)}</span>`;
+                chip.addEventListener('click', () => addQuickItem(item.name, item.price));
+                item.isBestSeller ? container.prepend(chip) : container.appendChild(chip);
+            }
+        });
+        if(count === 0) container.innerHTML = '<span style="color: #888;">Không có món nào.</span>';
+    }
+
+    menuRef.on('value', (snapshot) => {
+        const managerList = document.getElementById('menuListManager');
+        managerList.innerHTML = '';
+        currentMenuData = [];
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            currentMenuData = Object.keys(data).map(key => ({ id: key, ...data[key] })).sort((a,b) => a.timestamp - b.timestamp);
+            renderMenuChips();
+            currentMenuData.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'menu-item-row';
+                const style = item.isBestSeller ? 'border-left: 3px solid #ff9800;' : '';
+                row.innerHTML = `
+                    <div style="display:flex; flex-direction:column; gap:4px; ${style} padding-left: 5px;">
+                        <span style="font-weight:600; color:var(--coffee-dark)">${item.name} ${item.isBestSeller ? '⭐' : ''}</span>
+                        <span style="font-size:0.85rem; color:var(--accent)">${formatCurrency(item.price)}</span>
+                    </div>
+                    <div>
+                        <button class="btn-action btn-edit" onclick="openEditModal('${item.id}')">Sửa</button>
+                        <button class="btn-action btn-delete" onclick="if(confirm('Xóa món này?')) db.ref('menuItems/${item.id}').remove()">Xóa</button>
+                    </div>
+                `;
+                managerList.appendChild(row);
+            });
+        }
+    });
+
+    // Modal sửa món
+    const editModal = document.getElementById('editModal');
+    let currentEditId = null;
+    window.openEditModal = function(id) {
+        currentEditId = id;
+        const item = currentMenuData.find(i => i.id === id);
+        if(!item) return;
+        document.getElementById('editItemName').value = item.name;
+        document.getElementById('editItemPrice').value = item.price;
+        document.getElementById('editMenuBestSeller').checked = item.isBestSeller || false;
+        
+        const catValue = item.category || 'food';
+        document.getElementById('editMenuCategory').value = catValue;
+        document.querySelectorAll('#editMenuCategoryWrapper .segment-btn').forEach(btn => {
+            if(btn.getAttribute('data-val') === catValue) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+
+        editModal.style.display = 'flex';
+        setTimeout(() => editModal.classList.add('active'), 10);
+    }
+    window.closeEditModal = function() {
+        editModal.classList.remove('active');
+        setTimeout(() => editModal.style.display = 'none', 200);
+    }
+    document.getElementById('saveEditBtn').addEventListener('click', () => {
+        const name = document.getElementById('editItemName').value.trim();
+        const price = parseFloat(document.getElementById('editItemPrice').value);
+        const category = document.getElementById('editMenuCategory').value;
+        const isBestSeller = document.getElementById('editMenuBestSeller').checked;
+        if (name && !isNaN(price) && currentEditId) {
+            db.ref(`menuItems/${currentEditId}`).update({ name, price, category, isBestSeller })
+              .then(() => { closeEditModal(); showToast("Lưu thành công!"); });
+        }
+    });
+
+    // --- 6. GHI NỢ & CHUYỂN LỊCH SỬ ---
+    document.getElementById('debtForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = nameInput.value.trim();
+        const phone = phoneInput.value.trim();
+        let items = document.getElementById('hiddenItemsString').value.trim();
+        const note = document.getElementById('orderNote').value.trim();
+        const amount = parseFloat(amountInput.value);
+        
+        const customTimeStr = document.getElementById('customTime').value;
+        const timestampToSave = customTimeStr ? new Date(customTimeStr).getTime() : Date.now();
+
+        if (!items) return showToast("Vui lòng chọn ít nhất 1 món!", "error");
+        if (note) items += ` (Ghi chú: ${note})`; 
+
+        let existingDebtKey = null;
+        let existingDebtData = null;
+        for (const [key, debt] of Object.entries(currentDebtsMap)) {
+            if (debt.name.toLowerCase() === name.toLowerCase()) {
+                existingDebtKey = key;
+                existingDebtData = debt;
+                break;
+            }
+        }
+
+        document.getElementById('submitBtn').disabled = true;
+        
+        if (existingDebtKey) {
+            const newItems = existingDebtData.items + " + " + items;
+            const newAmount = existingDebtData.amount + amount;
+            db.ref(`debts/${existingDebtKey}`).update({ 
+                items: newItems, amount: newAmount, phone: phone || existingDebtData.phone, timestamp: timestampToSave 
+            }).then(onSuccess).catch(e => showToast(e.message, "error"));
+        } else {
+            debtsRef.push({ 
+                name, phone, items, amount, timestamp: timestampToSave 
+            }).then(onSuccess).catch(e => showToast(e.message, "error"));
+        }
+    });
+
+    function onSuccess() {
+        document.getElementById('debtForm').reset();
+        setLocalNow();
+        selectedTagsArray = [];
+        renderTags();
+        isPriceManuallyEdited = false;
+        resetPriceBtn.style.display = 'none';
+        oldDebtWarning.style.display = 'none';
+        document.getElementById('submitBtn').disabled = false;
+        
+        showToast("Đã lưu vào sổ nợ!");
+        navItems[1].click(); 
+    }
+
+    // TẢI DANH SÁCH NỢ
+    debtsRef.on('value', (snapshot) => {
+        const list = document.getElementById('debtList');
+        list.innerHTML = ''; 
+        let totalDebt = 0;
+        currentDebtsMap = {}; 
+
+        if (snapshot.exists()) {
+            currentDebtsMap = snapshot.val();
+            const arr = Object.keys(currentDebtsMap).map(k => ({ id: k, ...currentDebtsMap[k] })).sort((a, b) => b.timestamp - a.timestamp);
+
+            arr.forEach(debt => {
+                totalDebt += debt.amount;
+                const div = document.createElement('div');
+                div.className = 'debt-item';
+                div.innerHTML = `
+                    <div class="debt-info">
+                        <h3>${debt.name}</h3>
+                        ${debt.phone ? `<p>📞 ${debt.phone}</p>` : ''}
+                        <p style="color:#000;">🛒 ${debt.items}</p>
+                        <p>🕒 ${new Date(debt.timestamp).toLocaleString('vi-VN')}</p>
+                    </div>
+                    <div class="debt-amount-action">
+                        <div class="debt-amount">${formatCurrency(debt.amount)}</div>
+                        <button class="btn-pay" onclick="payDebtModal('${debt.id}')">Đã Trả C/K</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        } else {
+            list.innerHTML = '<p style="text-align:center; color:#666;">Chưa có khoản nợ nào.</p>';
+        }
+        document.getElementById('totalDebtDisplay').textContent = formatCurrency(totalDebt);
+    });
+
+    // CHUYỂN NỢ SANG LỊCH SỬ KHI BẤM "ĐÃ TRẢ C/K"
+    window.payDebtModal = function(id) {
+        if(confirm('Khách đã thanh toán xong khoản nợ này?')) {
+            const debtData = currentDebtsMap[id];
+            if(debtData) {
+                // Thêm thời gian trả nợ
+                debtData.paidAt = Date.now();
+                // Push sang History
+                historyRef.push(debtData).then(() => {
+                    // Xóa khỏi Debts
+                    db.ref(`debts/${id}`).remove().then(() => {
+                        showToast("Đã thanh toán & Lưu vào Lịch sử");
+                    });
+                });
+            }
+        }
+    }
+
+    // TẢI DANH SÁCH LỊCH SỬ
+    historyRef.on('value', (snapshot) => {
+        const list = document.getElementById('historyList');
+        list.innerHTML = '';
+        let totalHistory = 0;
+
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            const arr = Object.keys(data).map(k => ({ id: k, ...data[k] })).sort((a, b) => b.paidAt - a.paidAt);
+
+            arr.forEach(item => {
+                totalHistory += item.amount;
+                const div = document.createElement('div');
+                div.className = 'debt-item history-item';
+                div.innerHTML = `
+                    <div class="debt-info">
+                        <h3>${item.name}</h3>
+                        <p style="color:#000;">🛒 ${item.items}</p>
+                        <p>✔️ Trả lúc: ${new Date(item.paidAt).toLocaleString('vi-VN')}</p>
+                    </div>
+                    <div class="debt-amount-action">
+                        <div class="debt-amount">+${formatCurrency(item.amount)}</div>
+                        <button class="btn-action" style="background:#f44336; padding: 4px 8px; font-size:0.75rem;" onclick="if(confirm('Xóa vĩnh viễn hóa đơn này khỏi lịch sử?')) db.ref('history/${item.id}').remove()">Xóa hẳn</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        } else {
+            list.innerHTML = '<p style="text-align:center; color:#666;">Chưa có lịch sử thu tiền.</p>';
+        }
+        document.getElementById('totalHistoryDisplay').textContent = formatCurrency(totalHistory);
+    });
+</script>
+</body>
+</html>
+```<FollowUp>
