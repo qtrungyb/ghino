@@ -4,27 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#4e342e">
-    <title>Sổ Ghi Nợ - Xôi & Cafe</title>
+    <title>Sổ Ghi Nợ</title>
+    <!-- Thư viện tạo ảnh Hóa Đơn -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* CSS Giao diện cơ bản */
+        /* --- CSS BIẾN & CƠ BẢN --- */
         :root {
             --bg-main: #f4f6f9; --coffee-dark: #4e342e; --coffee-medium: #795548;
             --coffee-light: #d7ccc8; --accent: #e65100; --text-dark: #2c3e50; --white: #ffffff; --radius: 12px;
-            --red: #e53935; --green: #43a047;
+            --red: #e53935; --green: #43a047; --orange: #fb8c00; --blue: #0288d1;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-main); color: var(--text-dark); -webkit-tap-highlight-color: transparent; overscroll-behavior-y: contain; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-main); color: var(--text-dark); -webkit-tap-highlight-color: transparent; overscroll-behavior-y: contain; overflow-x: hidden; }
         
         .app-container { max-width: 600px; margin: 0 auto; padding: 16px; padding-bottom: 80px; contain: content; }
         .header { text-align: center; padding: 10px 0 20px 0; color: var(--coffee-dark); border-bottom: 2px dashed #ccc; margin-bottom: 20px; }
         .header h1 { font-size: 1.5rem; margin-bottom: 5px; }
         
-        .summary-card { background: var(--coffee-dark); color: var(--white); padding: 20px; border-radius: var(--radius); text-align: center; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .summary-card { background: var(--coffee-dark); color: var(--white); padding: 20px; border-radius: var(--radius); text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative;}
         .summary-card.history-card { background: var(--green); }
-        .summary-card h2 { font-size: 1.2rem; font-weight: normal; margin-bottom: 8px; color: rgba(255,255,255,0.8); }
-        .summary-card .total-amount { font-size: 2rem; font-weight: bold; color: #ffb300; }
+        .summary-card h2 { font-size: 1.1rem; font-weight: normal; margin-bottom: 8px; color: rgba(255,255,255,0.8); }
+        .summary-card .total-amount { font-size: 2rem; font-weight: bold; color: #ffb300; display: flex; flex-direction: column; align-items: center;}
+        .summary-card .total-count { font-size: 1rem; color: #ffe082; font-weight: 500; margin-top: 4px;}
         .summary-card.history-card .total-amount { color: #fff; }
-        
+        .summary-card.history-card .total-count { color: #c8e6c9; }
+
+        /* --- VISUAL ANALYTICS (THỐNG KÊ MINI) --- */
+        .analytics-container { background: white; padding: 15px; border-radius: var(--radius); margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .analytics-title { font-size: 0.85rem; font-weight: bold; color: #555; margin-bottom: 8px; text-transform: uppercase; }
+        .progress-bar-bg { width: 100%; height: 10px; background: #ffebee; border-radius: 5px; overflow: hidden; display: flex; }
+        .progress-bar-fill { height: 100%; background: var(--green); transition: width 0.5s ease; }
+        .analytics-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.8rem; font-weight: 600; }
+
         /* Form & Row */
         .form-row { display: flex; gap: 10px; margin-bottom: 15px; }
         .form-row .form-group { margin-bottom: 0; flex: 1; position: relative;}
@@ -49,7 +60,7 @@
         
         /* Bộ lọc Tab Nhỏ & Chip Menu */
         .menu-filter-row { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 5px; }
-        .filter-tab { padding: 6px 14px; background: #e0e0e0; border-radius: 20px; font-size: 0.85rem; font-weight: 600; color: #555; cursor: pointer; white-space: nowrap;}
+        .filter-tab { padding: 6px 14px; background: #e0e0e0; border-radius: 20px; font-size: 0.85rem; font-weight: 600; color: #555; cursor: pointer; white-space: nowrap; transition: 0.2s;}
         .filter-tab.active { background: var(--coffee-dark); color: white; }
         
         .chip-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; max-height: 220px; overflow-y: auto;}
@@ -84,22 +95,98 @@
         .nav-item { flex: 1; text-align: center; padding: 10px 0; color: #999; font-weight: 600; cursor: pointer; border-top: 3px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .nav-item.active { color: var(--coffee-dark); border-top-color: var(--coffee-dark); background-color: #fafafa; }
 
-        /* Danh sách & Admin & History */
-        .debt-item { background: var(--white); padding: 16px; border-radius: var(--radius); margin-bottom: 12px; border-left: 5px solid var(--coffee-medium); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04);}
-        .history-item { border-left: 5px solid var(--green); opacity: 0.9;}
-        .history-item .debt-amount { color: var(--green); }
-        .btn-pay { background-color: #4CAF50; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold;}
-        .btn-action { color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; margin-left: 5px;}
+        /* Danh sách Nợ & Tìm Kiếm & Avatar & Time Chips */
+        .search-sort-container { display: flex; gap: 10px; margin-bottom: 10px;}
+        .search-bar-container { position: relative; flex: 1; }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #888; }
+        .search-input { width: 100%; padding: 12px 12px 12px 40px; border: 1px solid #ddd; border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.2s;}
+        .search-input:focus { border-color: var(--coffee-dark); }
         
-        /* Trang trượt & Popup */
+        .sort-trigger-btn { padding: 0 15px; border: 1px solid #ddd; border-radius: 12px; background: white; color: var(--coffee-dark); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; white-space: nowrap; font-size: 0.9rem;}
+        .sort-trigger-btn:active { background: #f9f9f9; }
+
+        /* Bottom Sheet (Bảng trượt sắp xếp) */
+        .bottom-sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2500; opacity: 0; visibility: hidden; transition: 0.3s; }
+        .bottom-sheet-overlay.active { opacity: 1; visibility: visible; }
+        .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-radius: 20px 20px 0 0; z-index: 2600; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); padding-bottom: 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.1);}
+        .bottom-sheet.active { transform: translateY(0); }
+        .sheet-header { padding: 15px; text-align: center; border-bottom: 1px solid #eee; position: relative;}
+        .sheet-drag-handle { width: 40px; height: 5px; background: #ddd; border-radius: 3px; margin: 0 auto 10px auto; }
+        .sheet-header h3 { font-size: 1.1rem; color: var(--coffee-dark); margin: 0;}
+        .sheet-item { padding: 16px 20px; font-size: 1rem; border-bottom: 1px solid #f9f9f9; cursor: pointer; display: flex; align-items: center; justify-content: space-between; color: #444;}
+        .sheet-item:active { background: #f0f0f0; }
+        .sheet-item.active { color: var(--accent); font-weight: bold; }
+        .sheet-item.active::after { content: '✓'; font-size: 1.2rem; font-weight: bold;}
+
+        /* Time Chips & Sticky Header cho Tab Danh sách */
+        .time-filter-row { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .time-chip { padding: 6px 14px; background: #e0e0e0; border-radius: 20px; font-size: 0.8rem; font-weight: bold; color: #555; cursor: pointer; white-space: nowrap; transition: 0.2s;}
+        .time-chip.active { background: var(--coffee-medium); color: white; }
+        .time-group-header { position: sticky; top: 0; background: var(--bg-main); padding: 8px 0; font-size: 0.9rem; font-weight: bold; color: #777; z-index: 5; text-transform: uppercase; margin-top: 10px; margin-bottom: 10px;}
+
+        /* --- SWIPE-TO-ACTION ITEMS --- */
+        .swipe-container { position: relative; overflow: hidden; border-radius: var(--radius); margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); background: var(--white); }
+        .swipe-actions-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; z-index: 1; }
+        .action-left { background: #0088FF; color: white; display: flex; align-items: center; padding-left: 20px; font-weight: bold; font-size: 0.9rem; width: 50%; } 
+        .action-right { background: var(--green); color: white; display: flex; align-items: center; justify-content: flex-end; padding-right: 20px; font-weight: bold; font-size: 0.9rem; width: 50%; } 
+        .action-delete { background: var(--red); color: white; display: flex; align-items: center; justify-content: flex-end; padding-right: 20px; font-weight: bold; font-size: 0.9rem; width: 50%; } 
+        .action-bill { background: var(--blue); color: white; display: flex; align-items: center; padding-left: 20px; font-weight: bold; font-size: 0.9rem; width: 50%; } 
+        
+        .swipe-content { position: relative; background: var(--white); z-index: 2; padding: 16px; border-left: 5px solid var(--coffee-medium); display: flex; flex-direction: column; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); will-change: transform; }
+        .swipe-content.aging-orange { border-left-color: var(--orange); }
+        .swipe-content.aging-red { border-left-color: var(--red); }
+        .swipe-content.history-item { border-left-color: var(--green); }
+
+        .debt-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer; user-select: none;}
+        .debt-profile { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--coffee-medium); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: bold; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
+        .debt-info { flex: 1; }
+        .debt-info h3 { font-size: 1.1rem; margin-bottom: 2px; color: var(--text-dark); display: flex; align-items: center; gap: 6px;}
+        .debt-amount-action { text-align: right; display: flex; flex-direction: column; align-items: flex-end; justify-content: center;}
+        .debt-amount { font-size: 1.25rem; font-weight: 800; color: var(--accent); }
+        .history-item .debt-amount { color: var(--green); }
+        
+        .chevron { transition: transform 0.3s; color: #999; font-size: 0.9rem; margin-top: 4px; display: inline-block;}
+        .swipe-container.expanded .chevron { transform: rotate(180deg); }
+
+        .collapsible-content { display: none; padding-top: 12px; border-top: 1px dashed #eee; margin-top: 12px;}
+        .swipe-container.expanded .collapsible-content { display: block; animation: fadeIn 0.3s ease; }
+        
+        .debt-details-box { background: #f9f9f9; padding: 10px; border-radius: 8px; font-size: 0.9rem; color: #444; border: 1px dashed #ddd; margin-bottom: 10px;}
+        .debt-actions-row { display: flex; justify-content: space-between; align-items: center;}
+        .debt-actions-left { display: flex; gap: 8px;}
+        .btn-action { color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; font-weight: bold;}
+        .btn-call { background-color: #0288d1; text-decoration: none;}
+        .btn-zalo { background-color: #0088FF; }
+        .btn-pay { background-color: #4CAF50; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);}
+        
+        /* --- TRANG HỒ SƠ KHÁCH HÀNG (CUSTOMER PROFILE) --- */
         .slide-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-main); z-index: 1500; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); overflow-y: auto; display: flex; flex-direction: column; }
         .slide-page.open { transform: translateX(0); }
         .slide-header { display: flex; align-items: center; padding: 15px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 10; }
         .btn-back { font-size: 1.5rem; background: none; border: none; padding: 5px 15px 5px 5px; cursor: pointer; font-weight: bold; color: var(--coffee-dark); z-index: 20;}
         .slide-content { padding: 16px; flex: 1; }
+
+        .profile-header { display: flex; flex-direction: column; align-items: center; background: white; padding: 20px; border-radius: var(--radius); box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px;}
+        .profile-avatar { width: 70px; height: 70px; border-radius: 50%; font-size: 2rem;}
+        .profile-name { font-size: 1.4rem; font-weight: bold; margin-top: 10px; color: var(--coffee-dark);}
+        .profile-phone { color: #666; font-size: 0.9rem;}
         
+        .profile-stats { display: flex; gap: 10px; margin-bottom: 15px;}
+        .stat-box { flex: 1; background: white; padding: 15px; border-radius: var(--radius); text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);}
+        .stat-val { font-size: 1.2rem; font-weight: bold; margin-top: 5px;}
+
+        /* --- HÓA ĐƠN ĐIỆN TỬ (E-RECEIPT) --- */
+        .receipt-container { background: #fff; width: 100%; max-width: 350px; padding: 20px; margin: 0 auto; border: 1px solid #ddd; position: relative; color: #333; font-family: 'Courier New', Courier, monospace;}
+        .receipt-container::after { content: ''; position: absolute; bottom: -5px; left: 0; right: 0; height: 10px; background-size: 10px 10px; background-image: radial-gradient(circle at 5px 10px, transparent 5px, #fff 6px); }
+        .receipt-header-bill { text-align: center; border-bottom: 1px dashed #999; padding-bottom: 10px; margin-bottom: 10px;}
+        .receipt-logo { font-size: 2rem; margin-bottom: 5px;}
+        .receipt-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;}
+        .receipt-total { border-top: 1px dashed #999; padding-top: 10px; margin-top: 10px; font-weight: bold; font-size: 1.1rem; text-align: right;}
+
         .menu-item-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #eee; }
         
+        /* Modal chung */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-box { background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 12px; transform: translateY(20px); transition: transform 0.2s; }
@@ -166,10 +253,10 @@
             <div class="form-row">
                 <div class="form-group" style="flex: 1;">
                     <label>Ghi chú đơn</label>
-                    <input type="text" id="orderNote" class="form-control" placeholder="Vd: Ít đá, không hành...">
+                    <input type="text" id="orderNote" class="form-control" placeholder="Vd: Ít đá...">
                 </div>
                 <div class="form-group" style="flex: 1;">
-                    <label>Thời gian ghi (Tùy chọn)</label>
+                    <label>Thời gian ghi</label>
                     <input type="datetime-local" id="customTime" class="form-control">
                 </div>
             </div>
@@ -186,19 +273,71 @@
 
     <!-- TAB 2: DANH SÁCH -->
     <div id="tab-list" class="tab-content">
+        <!-- Visual Analytics: Thanh tiến trình -->
+        <div class="analytics-container">
+            <div class="analytics-title">📊 Tỷ lệ thu hồi vốn</div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="analyticsBar" style="width: 0%;"></div>
+            </div>
+            <div class="analytics-labels">
+                <span style="color: var(--green)" id="analyticsPaidText">Đã thu: 0đ</span>
+                <span style="color: var(--red)" id="analyticsDebtText">Đang nợ: 0đ</span>
+            </div>
+        </div>
+
         <div class="summary-card">
             <h2>Tổng Khách Đang Nợ</h2>
-            <div class="total-amount" id="totalDebtDisplay">0 ₫</div>
+            <div class="total-amount" id="totalDebtDisplay">
+                0 ₫
+                <div class="total-count" id="totalDebtCountDisplay">(0 khoản nợ)</div>
+            </div>
         </div>
+        
+        <div class="search-sort-container">
+            <div class="search-bar-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchDebtInput" class="search-input" placeholder="Tìm tên, SĐT...">
+            </div>
+            <div class="sort-trigger-btn" onclick="openSortSheet()">
+                <span id="currentSortLabel">🕒 Mới nhất</span> ▾
+            </div>
+        </div>
+        
+        <div class="time-filter-row">
+            <span class="time-chip active" onclick="filterDebtTime('all')">Tất cả</span>
+            <span class="time-chip" onclick="filterDebtTime('today')">Hôm nay</span>
+            <span class="time-chip" onclick="filterDebtTime('week')">Tuần này</span>
+            <span class="time-chip" onclick="filterDebtTime('older')">Cũ hơn</span>
+        </div>
+
+        <div style="font-size: 0.8rem; color: #888; margin-bottom: 10px; text-align: center;">
+            💡 Vuốt thẻ sang trái để Thu Tiền, sang phải để Nhắn Zalo
+        </div>
+
         <div class="debt-list" id="debtList"></div>
     </div>
     
-    <!-- TAB 3: LỊCH SỬ THU TIỀN -->
+    <!-- TAB 3: LỊCH SỬ -->
     <div id="tab-history" class="tab-content">
         <div class="summary-card history-card">
-            <h2>Đã Thu Của Khách (Tổng)</h2>
-            <div class="total-amount" id="totalHistoryDisplay">0 ₫</div>
+            <h2>Đã Thu Của Khách</h2>
+            <div class="total-amount" id="totalHistoryDisplay">
+                0 ₫
+                <div class="total-count" id="totalHistoryCountDisplay">(0 khoản thu)</div>
+            </div>
         </div>
+        
+        <div class="time-filter-row" style="justify-content: center; margin-bottom: 10px;">
+            <span class="time-chip active" onclick="filterHistoryTime('all')">Tất cả</span>
+            <span class="time-chip" onclick="filterHistoryTime('today')">Hôm nay</span>
+            <span class="time-chip" onclick="filterHistoryTime('week')">Tuần này</span>
+            <span class="time-chip" onclick="filterHistoryTime('month')">Tháng này</span>
+        </div>
+
+        <div style="font-size: 0.8rem; color: #888; margin-bottom: 10px; text-align: center;">
+            💡 Vuốt thẻ sang trái để Xóa, sang phải để In Hóa Đơn
+        </div>
+
         <div class="debt-list" id="historyList"></div>
     </div>
 
@@ -210,6 +349,98 @@
                 <span style="font-weight: 500;">☰ Quản lý danh mục món</span>
                 <span style="color: #ccc; font-size: 1.2rem;">›</span>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM SHEET SẮP XẾP -->
+<div class="bottom-sheet-overlay" id="sortSheetOverlay" onclick="closeSortSheet()"></div>
+<div class="bottom-sheet" id="sortSheet">
+    <div class="sheet-header">
+        <div class="sheet-drag-handle"></div>
+        <h3>Sắp xếp danh sách</h3>
+    </div>
+    <div>
+        <div class="sheet-item active" data-sort="newest" onclick="selectSortMode('newest', '🕒 Mới nhất', this)">🕒 Mới nhất</div>
+        <div class="sheet-item" data-sort="oldest" onclick="selectSortMode('oldest', '⏳ Cũ nhất', this)">⏳ Cũ nhất</div>
+        <div class="sheet-item" data-sort="highest" onclick="selectSortMode('highest', '💰 Nợ nhiều', this)">💰 Nợ nhiều nhất</div>
+        <div class="sheet-item" data-sort="az" onclick="selectSortMode('az', '🔤 Tên A-Z', this)">🔤 Tên A-Z</div>
+    </div>
+</div>
+
+<!-- TRANG TRƯỢT: HỒ SƠ KHÁCH HÀNG -->
+<div id="customerProfilePage" class="slide-page">
+    <div class="slide-header">
+        <button class="btn-back" onclick="closeProfile()">←</button>
+        <div style="font-size: 1.1rem; font-weight: bold; color: var(--coffee-dark);">Hồ Sơ Khách Hàng</div>
+    </div>
+    <div class="slide-content">
+        <div class="profile-header">
+            <div class="avatar profile-avatar" id="profileAvatar">A</div>
+            <div class="profile-name" id="profileName">Tên Khách</div>
+            <div class="profile-phone" id="profilePhone">0912345678</div>
+        </div>
+        <div class="profile-stats">
+            <div class="stat-box">
+                <div style="font-size: 0.85rem; color: var(--red);">Đang Nợ</div>
+                <div class="stat-val" style="color: var(--red);" id="profileDebt">0đ</div>
+            </div>
+            <div class="stat-box">
+                <div style="font-size: 0.85rem; color: var(--green);">Đã Trả</div>
+                <div class="stat-val" style="color: var(--green);" id="profilePaid">0đ</div>
+            </div>
+        </div>
+        <h3 style="font-size: 1rem; margin-bottom: 10px; color: #555;">Lịch sử giao dịch</h3>
+        <div id="profileTransactions"></div>
+    </div>
+</div>
+
+<!-- MODAL: HÓA ĐƠN ĐIỆN TỬ -->
+<div class="modal-overlay" id="receiptModal">
+    <div class="modal-box" style="background: transparent; box-shadow: none;">
+        <div id="receiptContainer" class="receipt-container">
+            <div class="receipt-header-bill">
+                <div class="receipt-logo">☕</div>
+                <h3 style="margin-bottom: 5px;">HÓA ĐƠN THANH TOÁN</h3>
+                <div style="font-size: 0.8rem; color: #666;" id="receiptDate">18/09/2026 10:30</div>
+            </div>
+            <div style="margin-bottom: 15px; border-bottom: 1px dashed #999; padding-bottom: 10px;">
+                <div class="receipt-row"><span>Khách hàng:</span> <strong id="receiptName">Anh Tuấn</strong></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 5px; font-size: 0.85rem;">Chi tiết:</div>
+                <div style="font-size: 0.85rem; line-height: 1.4;" id="receiptItems">2 Xôi gà, 1 Cafe</div>
+            </div>
+            <div class="receipt-total">
+                TỔNG THU: <span id="receiptTotalAmount">105.000đ</span>
+            </div>
+            <div style="text-align: center; font-size: 0.8rem; margin-top: 15px; color: #666;">Cảm ơn quý khách và hẹn gặp lại!</div>
+        </div>
+        <div class="modal-actions" style="justify-content: center; margin-top: 15px;">
+            <button class="btn-modal" style="background: white; color: #333;" onclick="document.getElementById('receiptModal').classList.remove('active')">Đóng</button>
+            <button class="btn-modal" style="background: var(--blue); color: white;" onclick="downloadReceipt()">📥 Tải Ảnh Bill</button>
+        </div>
+    </div>
+</div>
+
+<!-- POPUP (MODAL): THANH TOÁN -->
+<div class="modal-overlay" id="payModal">
+    <div class="modal-box">
+        <h3 style="margin-bottom: 15px; color: var(--green);">Xác nhận thanh toán</h3>
+        <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+            <p style="margin-bottom: 5px;">Khách: <strong id="payCustomerName"></strong></p>
+            <p>Tổng đang nợ: <strong id="payTotalAmount" style="color:var(--red); font-size: 1.1rem;"></strong></p>
+        </div>
+        
+        <div class="form-group">
+            <label>Số tiền khách đưa (VNĐ)</label>
+            <input type="number" id="payAmountInput" class="form-control" style="font-size: 1.2rem; font-weight: bold; color: var(--green);">
+            <small style="color: #666; margin-top: 5px; display: block;">Mẹo: Nhập số nhỏ hơn để Trả nợ một phần.</small>
+        </div>
+        
+        <div class="modal-actions">
+            <button class="btn-modal" style="background: #e0e0e0; color: #333;" onclick="closePayModal()">Hủy</button>
+            <button class="btn-modal" style="background: var(--green); color: white;" id="confirmPayBtn">Xác nhận Trả</button>
         </div>
     </div>
 </div>
@@ -309,6 +540,13 @@
     // --- 1. UI UTILS ---
     const formatCurrency = (number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
 
+    function getAvatarColor(char) {
+        const colors = ['#e53935', '#d81b60', '#8e24aa', '#3949ab', '#039be5', '#00897b', '#43a047', '#f4511e', '#ff8f00', '#6d4c41'];
+        if (!char) return colors[0];
+        const index = char.charCodeAt(0) % colors.length;
+        return colors[index];
+    }
+
     function setLocalNow() {
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -336,6 +574,34 @@
         });
     });
 
+    // Hàm đóng mở Thẻ thu gọn (Accordion)
+    window.toggleAccordion = function(element) {
+        const item = element.closest('.swipe-container');
+        // Ngăn chặn mở nếu đang vuốt
+        const content = item.querySelector('.swipe-content');
+        if(content.style.transform && content.style.transform !== 'translateX(0px)') return;
+        item.classList.toggle('expanded');
+    }
+
+    // BOTTOM SHEET SẮP XẾP
+    let currentSortMode = 'newest';
+    function openSortSheet() {
+        document.getElementById('sortSheetOverlay').classList.add('active');
+        document.getElementById('sortSheet').classList.add('active');
+    }
+    function closeSortSheet() {
+        document.getElementById('sortSheetOverlay').classList.remove('active');
+        document.getElementById('sortSheet').classList.remove('active');
+    }
+    window.selectSortMode = function(mode, label, element) {
+        currentSortMode = mode;
+        document.getElementById('currentSortLabel').textContent = label;
+        document.querySelectorAll('.sheet-item').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        closeSortSheet();
+        renderDebtList(); 
+    }
+
     // --- 2. FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyA86Poty8VhhhbJUQQQ2NXCfGXjOgJGePY",
@@ -349,11 +615,64 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const debtsRef = db.ref('debts');
-    const historyRef = db.ref('history'); // Node mới lưu lịch sử
+    const historyRef = db.ref('history');
     const menuRef = db.ref('menuItems'); 
+    
     let currentDebtsMap = {}; 
+    let currentDebtsArray = []; 
+    let currentHistoryArray = [];
 
-    // --- 3. AUTO-SUGGEST ---
+    // --- 3. SWIPE-TO-ACTION LOGIC (VUỐT THẺ) ---
+    let touchStartX = 0, touchStartY = 0, touchCurrentX = 0, activeSwipeEl = null, isScrollingY = false;
+    
+    document.addEventListener('touchstart', e => {
+        const swipeable = e.target.closest('.swipe-content');
+        if(!swipeable) {
+            document.querySelectorAll('.swipe-content').forEach(el => el.style.transform = 'translateX(0)');
+            return;
+        }
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        activeSwipeEl = swipeable;
+        activeSwipeEl.style.transition = 'none';
+        isScrollingY = false;
+    }, {passive: true});
+
+    document.addEventListener('touchmove', e => {
+        if(!activeSwipeEl) return;
+        let diffX = e.touches[0].clientX - touchStartX;
+        let diffY = e.touches[0].clientY - touchStartY;
+        
+        // Nhận diện cuộn dọc
+        if (Math.abs(diffY) > Math.abs(diffX) + 5) {
+            isScrollingY = true;
+            return;
+        } 
+        if (isScrollingY) return;
+
+        touchCurrentX = e.touches[0].clientX;
+        if(diffX < -120) diffX = -120;
+        if(diffX > 120) diffX = 120; 
+        activeSwipeEl.style.transform = `translateX(${diffX}px)`;
+    }, {passive: true});
+
+    document.addEventListener('touchend', e => {
+        if(!activeSwipeEl || isScrollingY) return;
+        activeSwipeEl.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+        let diffX = touchCurrentX ? (touchCurrentX - touchStartX) : 0;
+        
+        if(diffX < -40) {
+            activeSwipeEl.style.transform = `translateX(-100px)`; // Mở action Trái
+        } else if(diffX > 40) {
+            activeSwipeEl.style.transform = `translateX(100px)`; // Mở action Phải
+        } else {
+            activeSwipeEl.style.transform = `translateX(0)`;
+        }
+        activeSwipeEl = null;
+        touchCurrentX = 0;
+    });
+
+    // --- 4. AUTO-SUGGEST ---
     const nameInput = document.getElementById('customerName');
     const phoneInput = document.getElementById('customerPhone');
     const suggestionsBox = document.getElementById('nameSuggestions');
@@ -387,7 +706,7 @@
     });
     document.addEventListener('click', (e) => { if(e.target !== nameInput && e.target !== suggestionsBox) suggestionsBox.style.display = 'none'; });
 
-    // --- 4. TÍNH TIỀN & CHỌN MÓN ---
+    // --- 5. TÍNH TIỀN & CHỌN MÓN ---
     const qtyInput = document.getElementById('qtyInput');
     const amountInput = document.getElementById('amount');
     const resetPriceBtn = document.getElementById('resetPriceBtn');
@@ -460,7 +779,7 @@
         return '🍽️ ';
     }
 
-    // --- 5. QUẢN LÝ DANH MỤC ---
+    // --- 6. QUẢN LÝ DANH MỤC ---
     const menuManagerPage = document.getElementById('menuManagerPage');
     document.getElementById('openMenuManagerBtn').addEventListener('click', () => menuManagerPage.classList.add('open'));
     document.getElementById('closeMenuManagerBtn').addEventListener('click', () => menuManagerPage.classList.remove('open'));
@@ -481,10 +800,10 @@
             }).catch(err => showToast(err.message, "error"));
     });
 
-    let currentFilter = 'all';
+    let currentMenuFilter = 'all';
     window.filterMenu = function(cat) {
-        currentFilter = cat;
-        document.querySelectorAll('.filter-tab').forEach(el => el.classList.remove('active'));
+        currentMenuFilter = cat;
+        document.querySelectorAll('.menu-filter-row .filter-tab').forEach(el => el.classList.remove('active'));
         event.target.classList.add('active');
         renderMenuChips(); 
     }
@@ -494,7 +813,7 @@
         container.innerHTML = '';
         let count = 0;
         currentMenuData.forEach(item => {
-            if (parseFloat(item.price) > 0 && (currentFilter === 'all' || item.category === currentFilter)) {
+            if (parseFloat(item.price) > 0 && (currentMenuFilter === 'all' || item.category === currentMenuFilter)) {
                 count++;
                 const chip = document.createElement('div');
                 chip.className = `chip ${item.isBestSeller ? 'best-seller' : ''}`;
@@ -524,8 +843,8 @@
                         <span style="font-size:0.85rem; color:var(--accent)">${formatCurrency(item.price)}</span>
                     </div>
                     <div>
-                        <button class="btn-action btn-edit" onclick="openEditModal('${item.id}')">Sửa</button>
-                        <button class="btn-action btn-delete" onclick="if(confirm('Xóa món này?')) db.ref('menuItems/${item.id}').remove()">Xóa</button>
+                        <button class="btn-action btn-edit" style="background:#ff9800" onclick="openEditModal('${item.id}')">Sửa</button>
+                        <button class="btn-action btn-delete" style="background:#f44336" onclick="if(confirm('Xóa món này?')) db.ref('menuItems/${item.id}').remove()">Xóa</button>
                     </div>
                 `;
                 managerList.appendChild(row);
@@ -533,7 +852,6 @@
         }
     });
 
-    // Modal sửa món
     const editModal = document.getElementById('editModal');
     let currentEditId = null;
     window.openEditModal = function(id) {
@@ -569,7 +887,7 @@
         }
     });
 
-    // --- 6. GHI NỢ & CHUYỂN LỊCH SỬ ---
+    // --- 7. GHI NỢ (GỘP NỢ) ---
     document.getElementById('debtForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const name = nameInput.value.trim();
@@ -623,92 +941,393 @@
         navItems[1].click(); 
     }
 
-    // TẢI DANH SÁCH NỢ
+    // --- 8. VISUAL ANALYTICS & TAB DANH SÁCH LỊCH SỬ ---
+    function updateAnalytics() {
+        let debt = currentDebtsArray.reduce((s, d)=>s+d.amount,0);
+        let paid = currentHistoryArray.reduce((s, h)=>s+h.amount,0);
+        let total = debt + paid;
+        let percent = total === 0 ? 0 : Math.round((paid / total) * 100);
+        
+        document.getElementById('analyticsBar').style.width = percent + '%';
+        document.getElementById('analyticsPaidText').textContent = `Đã thu: ${formatCurrency(paid)} (${percent}%)`;
+        document.getElementById('analyticsDebtText').textContent = `Đang nợ: ${formatCurrency(debt)}`;
+    }
+
+    function getRelativeTimeStr(ts) {
+        const d = new Date(ts), today = new Date(); today.setHours(0,0,0,0);
+        const t = new Date(d); t.setHours(0,0,0,0);
+        const diff = (today - t)/86400000;
+        if(diff === 0) return "Hôm nay";
+        if(diff === 1) return "Hôm qua";
+        if(diff > 1 && diff <= 7) return "Tuần này";
+        return d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit', year:'numeric'});
+    }
+
+    const searchDebtInput = document.getElementById('searchDebtInput');
+    let currentDebtTimeFilter = 'all';
+
     debtsRef.on('value', (snapshot) => {
-        const list = document.getElementById('debtList');
-        list.innerHTML = ''; 
-        let totalDebt = 0;
         currentDebtsMap = {}; 
+        currentDebtsArray = [];
+        let totalDebt = 0;
+        let countDebt = 0;
 
         if (snapshot.exists()) {
             currentDebtsMap = snapshot.val();
-            const arr = Object.keys(currentDebtsMap).map(k => ({ id: k, ...currentDebtsMap[k] })).sort((a, b) => b.timestamp - a.timestamp);
-
-            arr.forEach(debt => {
+            currentDebtsArray = Object.keys(currentDebtsMap).map(k => ({ id: k, ...currentDebtsMap[k] }));
+            currentDebtsArray.forEach(debt => {
                 totalDebt += debt.amount;
-                const div = document.createElement('div');
-                div.className = 'debt-item';
-                div.innerHTML = `
-                    <div class="debt-info">
-                        <h3>${debt.name}</h3>
-                        ${debt.phone ? `<p>📞 ${debt.phone}</p>` : ''}
-                        <p style="color:#000;">🛒 ${debt.items}</p>
-                        <p>🕒 ${new Date(debt.timestamp).toLocaleString('vi-VN')}</p>
-                    </div>
-                    <div class="debt-amount-action">
-                        <div class="debt-amount">${formatCurrency(debt.amount)}</div>
-                        <button class="btn-pay" onclick="payDebtModal('${debt.id}')">Đã Trả C/K</button>
-                    </div>
-                `;
-                list.appendChild(div);
+                countDebt++;
             });
-        } else {
-            list.innerHTML = '<p style="text-align:center; color:#666;">Chưa có khoản nợ nào.</p>';
         }
-        document.getElementById('totalDebtDisplay').textContent = formatCurrency(totalDebt);
+        document.getElementById('totalDebtDisplay').innerHTML = `${formatCurrency(totalDebt)} <div class="total-count" id="totalDebtCountDisplay">(${countDebt} khoản nợ)</div>`;
+        updateAnalytics();
+        renderDebtList(); 
     });
 
-    // CHUYỂN NỢ SANG LỊCH SỬ KHI BẤM "ĐÃ TRẢ C/K"
-    window.payDebtModal = function(id) {
-        if(confirm('Khách đã thanh toán xong khoản nợ này?')) {
-            const debtData = currentDebtsMap[id];
-            if(debtData) {
-                // Thêm thời gian trả nợ
-                debtData.paidAt = Date.now();
-                // Push sang History
-                historyRef.push(debtData).then(() => {
-                    // Xóa khỏi Debts
-                    db.ref(`debts/${id}`).remove().then(() => {
-                        showToast("Đã thanh toán & Lưu vào Lịch sử");
-                    });
-                });
-            }
-        }
+    searchDebtInput.addEventListener('input', renderDebtList);
+    
+    window.filterDebtTime = function(period) {
+        currentDebtTimeFilter = period;
+        event.target.parentElement.querySelectorAll('.time-chip').forEach(el => el.classList.remove('active'));
+        event.target.classList.add('active');
+        renderDebtList();
     }
 
-    // TẢI DANH SÁCH LỊCH SỬ
+    function renderDebtList() {
+        const list = document.getElementById('debtList');
+        list.innerHTML = '';
+        const keyword = searchDebtInput.value.trim().toLowerCase();
+        const sortMode = currentSortMode;
+        
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfWeek = startOfToday - (now.getDay() === 0 ? 6 : now.getDay() - 1) * 86400000;
+
+        let filteredArray = currentDebtsArray.filter(debt => {
+            const matchName = debt.name.toLowerCase().includes(keyword) || (debt.phone && debt.phone.toLowerCase().includes(keyword));
+            let matchTime = true;
+            if (currentDebtTimeFilter === 'today') matchTime = debt.timestamp >= startOfToday;
+            else if (currentDebtTimeFilter === 'week') matchTime = debt.timestamp >= startOfWeek;
+            else if (currentDebtTimeFilter === 'older') matchTime = debt.timestamp < startOfWeek;
+            return matchName && matchTime;
+        });
+
+        if (sortMode === 'newest') filteredArray.sort((a, b) => b.timestamp - a.timestamp);
+        else if (sortMode === 'oldest') filteredArray.sort((a, b) => a.timestamp - b.timestamp);
+        else if (sortMode === 'highest') filteredArray.sort((a, b) => b.amount - a.amount);
+        else if (sortMode === 'az') filteredArray.sort((a, b) => a.name.localeCompare(b.name));
+
+        if (filteredArray.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:#666; margin-top:20px;">Không có khoản nợ nào khớp.</p>';
+            return;
+        }
+
+        let currentGroup = '';
+        filteredArray.forEach(debt => {
+            
+            // Render Sticky Time Headers if sorting by time
+            if(sortMode === 'newest' || sortMode === 'oldest') {
+                let g = getRelativeTimeStr(debt.timestamp);
+                if(g !== currentGroup) {
+                    currentGroup = g;
+                    let h = document.createElement('div');
+                    h.className = 'time-group-header';
+                    h.textContent = g;
+                    list.appendChild(h);
+                }
+            }
+
+            const daysOld = Math.floor((Date.now() - debt.timestamp) / (1000 * 60 * 60 * 24));
+            let swipeClass = 'swipe-content';
+            if (daysOld >= 7) swipeClass += ' aging-red';
+            else if (daysOld >= 3) swipeClass += ' aging-orange';
+
+            const callBtnHtml = debt.phone ? `<a href="tel:${debt.phone}" class="btn-action btn-call" onclick="event.stopPropagation()">📞 Gọi</a>` : '';
+            const shareText = `Dạ em gửi anh/chị ${debt.name} hóa đơn ghi nợ:\n🛒 Món: ${debt.items}\n💰 Tổng tiền: ${formatCurrency(debt.amount)}\nLúc nào tiện anh/chị chuyển khoản giúp em nhé. Em cảm ơn!`;
+            const encodedShare = encodeURIComponent(shareText);
+            const initial = debt.name.charAt(0).toUpperCase();
+            const avatarBg = getAvatarColor(initial);
+
+            const div = document.createElement('div');
+            div.className = 'swipe-container';
+            div.innerHTML = `
+                <div class="swipe-actions-bg">
+                    <div class="action-left" onclick="shareToZalo('${encodedShare}')">💬 Zalo</div>
+                    <div class="action-right" onclick="openPayModal('${debt.id}')">💳 Thu Tiền</div>
+                </div>
+                <div class="${swipeClass}">
+                    <div class="debt-top" onclick="toggleAccordion(this)">
+                        <div class="debt-profile" onclick="openProfile('${debt.id}'); event.stopPropagation();">
+                            <div class="avatar" style="background-color: ${avatarBg}">${initial}</div>
+                            <div class="debt-info">
+                                <h3>${debt.name}</h3>
+                                <p style="font-size:0.8rem; color:#888;">🕒 ${new Date(debt.timestamp).toLocaleTimeString('vi-VN')}</p>
+                            </div>
+                        </div>
+                        <div class="debt-amount-action">
+                            <div class="debt-amount">${formatCurrency(debt.amount)}</div>
+                            <span class="chevron">▼</span>
+                        </div>
+                    </div>
+                    
+                    <div class="collapsible-content">
+                        <div class="debt-details-box">
+                            ${debt.phone ? `📱 SĐT: ${debt.phone}<br>` : ''}
+                            <strong>🛒 Chi tiết:</strong> ${debt.items}<br>
+                        </div>
+                        <div class="debt-actions-row">
+                            <div class="debt-actions-left">
+                                ${callBtnHtml}
+                                <button class="btn-action" style="background:#0088FF;" onclick="shareToZalo('${encodedShare}'); event.stopPropagation()">📤 Zalo</button>
+                            </div>
+                            <button class="btn-action btn-pay" onclick="openPayModal('${debt.id}'); event.stopPropagation()">💳 Thu Tiền</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    window.shareToZalo = function(encodedText) {
+        const text = decodeURIComponent(encodedText);
+        if (navigator.share) {
+            navigator.share({ title: 'Gửi hóa đơn nợ', text: text }).catch(e => console.log(e));
+        } else {
+            navigator.clipboard.writeText(text).then(() => showToast("Đã copy hóa đơn. Hãy dán vào Zalo/Tin nhắn!"));
+        }
+        document.querySelectorAll('.swipe-content').forEach(el => el.style.transform = 'translateX(0)');
+    }
+
+    // --- 9. HỒ SƠ KHÁCH HÀNG (CUSTOMER PROFILE) ---
+    window.openProfile = function(id) {
+        let debt = currentDebtsMap[id] || currentHistoryArray.find(h=>h.id === id);
+        if(!debt) return;
+        
+        let targetName = debt.name.toLowerCase();
+        let allDebts = currentDebtsArray.filter(x => x.name.toLowerCase() === targetName);
+        let allHistory = currentHistoryArray.filter(x => x.name.toLowerCase() === targetName);
+        
+        let tDebt = allDebts.reduce((s,i)=>s+i.amount,0);
+        let tPaid = allHistory.reduce((s,i)=>s+i.amount,0);
+
+        document.getElementById('profileAvatar').style.background = getAvatarColor(debt.name.charAt(0).toUpperCase());
+        document.getElementById('profileAvatar').textContent = debt.name.charAt(0).toUpperCase();
+        document.getElementById('profileName').textContent = debt.name;
+        document.getElementById('profilePhone').textContent = debt.phone || 'Chưa cập nhật SĐT';
+        
+        document.getElementById('profileDebt').textContent = formatCurrency(tDebt);
+        document.getElementById('profilePaid').textContent = formatCurrency(tPaid);
+
+        // Nối và sort lịch sử giao dịch
+        let mergedTrans = [
+            ...allDebts.map(x => ({...x, type:'debt'})), 
+            ...allHistory.map(x => ({...x, type:'paid'}))
+        ].sort((a,b) => (b.paidAt||b.timestamp) - (a.paidAt||a.timestamp));
+        
+        let listStr = mergedTrans.map(i => `
+            <div style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; background:white; border-radius:8px; margin-bottom:8px;">
+                <div>
+                    <span style="color:${i.type==='debt'?'var(--red)':'var(--green)'}; font-weight:bold;">${i.type==='debt'?'Ghi nợ':'Đã trả'}</span><br>
+                    <small style="color:#888">${new Date(i.paidAt||i.timestamp).toLocaleString('vi-VN')}</small>
+                </div>
+                <div style="text-align:right;">
+                    <strong style="color:var(--coffee-dark);">${formatCurrency(i.amount)}</strong><br>
+                    <small style="color:#555;">${i.items.length > 20 ? i.items.substring(0,20)+'...' : i.items}</small>
+                </div>
+            </div>
+        `).join('');
+        
+        document.getElementById('profileTransactions').innerHTML = listStr || '<p style="text-align:center;color:#888;">Trống</p>';
+        document.getElementById('customerProfilePage').classList.add('open');
+    }
+    window.closeProfile = () => document.getElementById('customerProfilePage').classList.remove('open');
+
+    // --- 10. THANH TOÁN CÓ TRẢ MỘT PHẦN ---
+    const payModal = document.getElementById('payModal');
+    let currentPayId = null;
+    let currentPayFullAmount = 0;
+
+    window.openPayModal = function(id) {
+        const debt = currentDebtsMap[id];
+        if(!debt) return;
+        currentPayId = id;
+        currentPayFullAmount = debt.amount;
+        document.getElementById('payCustomerName').textContent = debt.name;
+        document.getElementById('payTotalAmount').textContent = formatCurrency(debt.amount);
+        document.getElementById('payAmountInput').value = debt.amount; 
+        payModal.style.display = 'flex';
+        setTimeout(() => payModal.classList.add('active'), 10);
+        document.querySelectorAll('.swipe-content').forEach(el => el.style.transform = 'translateX(0)');
+    }
+    
+    window.closePayModal = function() {
+        payModal.classList.remove('active');
+        setTimeout(() => payModal.style.display = 'none', 200);
+    }
+
+    document.getElementById('confirmPayBtn').addEventListener('click', () => {
+        const payVal = parseFloat(document.getElementById('payAmountInput').value);
+        const originalDebt = currentDebtsMap[currentPayId];
+        
+        if(payVal > 0 && originalDebt) {
+            document.getElementById('confirmPayBtn').disabled = true;
+            
+            if (payVal >= currentPayFullAmount) {
+                const historyData = { ...originalDebt, paidAt: Date.now() };
+                historyRef.push(historyData).then(() => {
+                    db.ref(`debts/${currentPayId}`).remove().then(() => {
+                        finishPayment("Đã thanh toán toàn bộ!");
+                    });
+                }).catch(e => showToast(e.message, "error"));
+            } else {
+                const remaining = currentPayFullAmount - payVal;
+                db.ref(`debts/${currentPayId}`).update({ amount: remaining }).then(() => {
+                    const partialHistory = { ...originalDebt, amount: payVal, items: `[Trả một phần] ${originalDebt.items}`, paidAt: Date.now() };
+                    historyRef.push(partialHistory).then(() => {
+                        finishPayment(`Đã thu ${formatCurrency(payVal)}, Khách còn nợ ${formatCurrency(remaining)}`);
+                    });
+                }).catch(e => showToast(e.message, "error"));
+            }
+        } else {
+            showToast("Vui lòng nhập số tiền hợp lệ", "error");
+        }
+    });
+
+    function finishPayment(msg) {
+        closePayModal();
+        document.getElementById('confirmPayBtn').disabled = false;
+        if(msg) showToast(msg);
+    }
+
+    // --- 11. TẢI DANH SÁCH LỊCH SỬ & HÓA ĐƠN ĐIỆN TỬ ---
+    let currentHistoryTimeFilter = 'all';
+
+    window.filterHistoryTime = function(period) {
+        currentHistoryTimeFilter = period;
+        event.target.parentElement.querySelectorAll('.time-chip').forEach(el => el.classList.remove('active'));
+        event.target.classList.add('active');
+        renderHistoryList();
+    }
+
     historyRef.on('value', (snapshot) => {
+    currentHistoryArray = [];
+    if (snapshot.exists()) {
+        const data = snapshot.val();
+        // SỬA THÀNH data[k]
+        currentHistoryArray = Object.keys(data).map(k => ({ id: k, ...data[k] })).sort((a, b) => b.paidAt - a.paidAt);
+    }
+    updateAnalytics();
+    renderHistoryList();
+});
+
+    function renderHistoryList() {
         const list = document.getElementById('historyList');
         list.innerHTML = '';
         let totalHistory = 0;
+        let countHistory = 0;
 
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            const arr = Object.keys(data).map(k => ({ id: k, ...data[k] })).sort((a, b) => b.paidAt - a.paidAt);
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfWeek = startOfToday - (now.getDay() === 0 ? 6 : now.getDay() - 1) * 86400000;
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
-            arr.forEach(item => {
-                totalHistory += item.amount;
-                const div = document.createElement('div');
-                div.className = 'debt-item history-item';
-                div.innerHTML = `
-                    <div class="debt-info">
-                        <h3>${item.name}</h3>
-                        <p style="color:#000;">🛒 ${item.items}</p>
-                        <p>✔️ Trả lúc: ${new Date(item.paidAt).toLocaleString('vi-VN')}</p>
-                    </div>
-                    <div class="debt-amount-action">
-                        <div class="debt-amount">+${formatCurrency(item.amount)}</div>
-                        <button class="btn-action" style="background:#f44336; padding: 4px 8px; font-size:0.75rem;" onclick="if(confirm('Xóa vĩnh viễn hóa đơn này khỏi lịch sử?')) db.ref('history/${item.id}').remove()">Xóa hẳn</button>
-                    </div>
-                `;
-                list.appendChild(div);
-            });
-        } else {
-            list.innerHTML = '<p style="text-align:center; color:#666;">Chưa có lịch sử thu tiền.</p>';
+        const filteredHistory = currentHistoryArray.filter(item => {
+            if (currentHistoryTimeFilter === 'today') return item.paidAt >= startOfToday;
+            if (currentHistoryTimeFilter === 'week') return item.paidAt >= startOfWeek;
+            if (currentHistoryTimeFilter === 'month') return item.paidAt >= startOfMonth;
+            return true; 
+        });
+
+        if (filteredHistory.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:#666; margin-top:20px;">Không có lịch sử thu tiền.</p>';
+            document.getElementById('totalHistoryDisplay').innerHTML = `0 ₫ <div class="total-count" id="totalHistoryCountDisplay">(0 khoản thu)</div>`;
+            return;
         }
-        document.getElementById('totalHistoryDisplay').textContent = formatCurrency(totalHistory);
-    });
+
+        let currentGroup = '';
+        filteredHistory.forEach(item => {
+            totalHistory += item.amount;
+            countHistory++;
+            
+            // Render Sticky Time Headers
+            let g = getRelativeTimeStr(item.paidAt);
+            if(g !== currentGroup) {
+                currentGroup = g;
+                let h = document.createElement('div');
+                h.className = 'time-group-header';
+                h.textContent = g;
+                list.appendChild(h);
+            }
+
+            const initial = item.name.charAt(0).toUpperCase();
+            const avatarBg = getAvatarColor(initial);
+
+            const div = document.createElement('div');
+            div.className = 'swipe-container';
+            div.innerHTML = `
+                <div class="swipe-actions-bg">
+                    <div class="action-delete" onclick="if(confirm('Xóa vĩnh viễn?')) db.ref('history/${item.id}').remove()">🗑 Xóa</div>
+                    <div class="action-bill" onclick="openReceipt('${item.id}')">🧾 In Bill</div>
+                </div>
+                <div class="swipe-content history-item">
+                    <div class="debt-top" onclick="toggleAccordion(this)">
+                        <div class="debt-profile" onclick="openProfile('${item.id}'); event.stopPropagation();">
+                            <div class="avatar" style="background-color: ${avatarBg}; opacity: 0.8">${initial}</div>
+                            <div class="debt-info">
+                                <h3>${item.name}</h3>
+                                <p style="font-size: 0.8rem; color: #666;">✔️ Thu lúc: ${new Date(item.paidAt).toLocaleTimeString('vi-VN')}</p>
+                            </div>
+                        </div>
+                        <div class="debt-amount-action">
+                            <div class="debt-amount">+${formatCurrency(item.amount)}</div>
+                            <span class="chevron">▼</span>
+                        </div>
+                    </div>
+                    
+                    <div class="collapsible-content">
+                        <div class="debt-details-box" style="border-color:#c8e6c9;">
+                            🛒 ${item.items}
+                        </div>
+                        <div class="debt-actions-row" style="justify-content: flex-end;">
+                            <button class="btn-action" style="background:#f44336; padding: 4px 8px; font-size:0.75rem;" onclick="if(confirm('Xóa vĩnh viễn hóa đơn này khỏi lịch sử?')) db.ref('history/${item.id}').remove(); event.stopPropagation()">Xóa hẳn</button>
+                            <button class="btn-action" style="background:var(--blue); padding: 4px 8px; font-size:0.75rem;" onclick="openReceipt('${item.id}'); event.stopPropagation()">🧾 In Bill</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+
+        document.getElementById('totalHistoryDisplay').innerHTML = `${formatCurrency(totalHistory)} <div class="total-count" id="totalHistoryCountDisplay">(${countHistory} khoản thu)</div>`;
+    }
+
+    // --- HÓA ĐƠN ĐIỆN TỬ (E-RECEIPT) ---
+    window.openReceipt = function(id) {
+        let h = currentHistoryArray.find(x => x.id === id); 
+        if(!h) return;
+        
+        document.getElementById('receiptName').textContent = h.name;
+        document.getElementById('receiptDate').textContent = new Date(h.paidAt).toLocaleString('vi-VN');
+        document.getElementById('receiptItems').innerHTML = h.items.replace(/,/g, '<br>•');
+        document.getElementById('receiptTotalAmount').textContent = formatCurrency(h.amount);
+        
+        document.getElementById('receiptModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('receiptModal').classList.add('active'), 10);
+        document.querySelectorAll('.swipe-content').forEach(el => el.style.transform = 'translateX(0)');
+    }
+
+    window.downloadReceipt = function() {
+        let node = document.getElementById('receiptContainer');
+        html2canvas(node, {backgroundColor: '#fff', scale: 2}).then(canvas => {
+            let a = document.createElement('a');
+            a.href = canvas.toDataURL('image/png');
+            a.download = `HoaDon_${Date.now()}.png`;
+            a.click();
+            showToast("Đã tải Ảnh Hóa Đơn!");
+        });
+    }
 </script>
 </body>
 </html>
-```<FollowUp>
