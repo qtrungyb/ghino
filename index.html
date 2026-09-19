@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#4e342e">
-    <title>Sổ Ghi Nợ</title>
+    <title>Sổ Ghi Nợ - Xôi & Cafe</title>
     <!-- Thư viện tạo ảnh Hóa Đơn -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -200,7 +200,25 @@
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.success { background: var(--green); }
         .toast.error { background: var(--red); }
-    </style>
+		/* --- CẢI TIẾN TAB DANH SÁCH --- */
+		.pro-dashboard {
+			background: linear-gradient(135deg, var(--coffee-dark), #2c1e16);
+			border-radius: var(--radius); padding: 20px; color: white; margin-bottom: 15px;
+			box-shadow: 0 8px 15px rgba(0,0,0,0.15); position: relative; overflow: hidden;
+		}
+		.pro-dashboard::after {
+			content: '☕'; position: absolute; right: -10px; bottom: -20px; font-size: 6rem; opacity: 0.1;
+		}
+		.sticky-controls {
+			position: sticky; top: 0; background: var(--bg-main); z-index: 100;
+			padding: 10px 0 5px 0; border-bottom: 1px solid #eee; margin-bottom: 15px;
+		}
+		.badge-status {
+			padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; margin-left: 8px; display: inline-block; text-transform: uppercase;
+		}
+		.badge-new { background: #e8f5e9; color: var(--green); }
+		.badge-old { background: #ffebee; color: var(--red); }
+			</style>
 </head>
 <body>
 
@@ -273,41 +291,41 @@
 
     <!-- TAB 2: DANH SÁCH -->
     <div id="tab-list" class="tab-content">
-        <!-- Visual Analytics: Thanh tiến trình -->
-        <div class="analytics-container">
-            <div class="analytics-title">📊 Tỷ lệ thu hồi vốn</div>
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" id="analyticsBar" style="width: 0%;"></div>
+        <!-- Dashboard Gộp -->
+        <div class="pro-dashboard">
+            <h2 style="font-size: 1rem; font-weight: 500; margin-bottom: 10px; color: rgba(255,255,255,0.8);">Tổng Khách Đang Nợ</h2>
+            <div class="total-amount" id="totalDebtDisplay" style="font-size: 2.2rem; font-weight: 900; color: #ffb300; margin-bottom: 5px;">0 ₫</div>
+            <div class="total-count" id="totalDebtCountDisplay" style="font-size: 0.9rem; color: #ffe082; margin-bottom: 15px;">(0 khoản nợ)</div>
+            
+            <!-- Tích hợp thanh tiến trình vào trong Dashboard -->
+            <div class="analytics-title" style="font-size: 0.75rem; color: #ccc; margin-bottom: 5px;">📊 Tỷ lệ thu hồi vốn</div>
+            <div class="progress-bar-bg" style="background: rgba(255,255,255,0.2); height: 6px;">
+                <div class="progress-bar-fill" id="analyticsBar" style="width: 0%; background: #4caf50;"></div>
             </div>
-            <div class="analytics-labels">
-                <span style="color: var(--green)" id="analyticsPaidText">Đã thu: 0đ</span>
-                <span style="color: var(--red)" id="analyticsDebtText">Đang nợ: 0đ</span>
-            </div>
-        </div>
-
-        <div class="summary-card">
-            <h2>Tổng Khách Đang Nợ</h2>
-            <div class="total-amount" id="totalDebtDisplay">
-                0 ₫
-                <div class="total-count" id="totalDebtCountDisplay">(0 khoản nợ)</div>
+            <div class="analytics-labels" style="color: #ddd; margin-top: 5px; font-weight: normal;">
+                <span id="analyticsPaidText">Đã thu: 0đ</span>
+                <span id="analyticsDebtText" style="color: #ffb300;">Đang nợ: 0đ</span>
             </div>
         </div>
         
-        <div class="search-sort-container">
-            <div class="search-bar-container">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="searchDebtInput" class="search-input" placeholder="Tìm tên, SĐT...">
+        <!-- Khối công cụ được làm dính (Sticky) -->
+        <div class="sticky-controls">
+            <div class="search-sort-container">
+                <div class="search-bar-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchDebtInput" class="search-input" placeholder="Tìm tên, SĐT...">
+                </div>
+                <div class="sort-trigger-btn" onclick="openSortSheet()">
+                    <span id="currentSortLabel">🕒 Mới nhất</span> ▾
+                </div>
             </div>
-            <div class="sort-trigger-btn" onclick="openSortSheet()">
-                <span id="currentSortLabel">🕒 Mới nhất</span> ▾
+            
+            <div class="time-filter-row" style="margin-bottom: 0;">
+                <span class="time-chip active" onclick="filterDebtTime('all')">Tất cả</span>
+                <span class="time-chip" onclick="filterDebtTime('today')">Hôm nay</span>
+                <span class="time-chip" onclick="filterDebtTime('week')">Tuần này</span>
+                <span class="time-chip" onclick="filterDebtTime('older')">Cũ hơn</span>
             </div>
-        </div>
-        
-        <div class="time-filter-row">
-            <span class="time-chip active" onclick="filterDebtTime('all')">Tất cả</span>
-            <span class="time-chip" onclick="filterDebtTime('today')">Hôm nay</span>
-            <span class="time-chip" onclick="filterDebtTime('week')">Tuần này</span>
-            <span class="time-chip" onclick="filterDebtTime('older')">Cũ hơn</span>
         </div>
 
         <div style="font-size: 0.8rem; color: #888; margin-bottom: 10px; text-align: center;">
