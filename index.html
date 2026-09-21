@@ -594,6 +594,7 @@
 
     // Hàm đóng mở Thẻ thu gọn (Accordion)
     window.toggleAccordion = function(element) {
+        if(window.isSwiping) return; // CHỐNG BẤM KHI ĐANG VUỐT
         const item = element.closest('.swipe-container');
         // Ngăn chặn mở nếu đang vuốt
         const content = item.querySelector('.swipe-content');
@@ -642,7 +643,8 @@
 
     // --- 3. SWIPE-TO-ACTION LOGIC (VUỐT THẺ) ---
     let touchStartX = 0, touchStartY = 0, touchCurrentX = 0, activeSwipeEl = null, isScrollingY = false;
-    
+    window.isSwiping = false; // Cờ theo dõi trạng thái vuốt để chống bấm nhầm
+
     document.addEventListener('touchstart', e => {
         const swipeable = e.target.closest('.swipe-content');
         if(!swipeable) {
@@ -654,6 +656,7 @@
         activeSwipeEl = swipeable;
         activeSwipeEl.style.transition = 'none';
         isScrollingY = false;
+        window.isSwiping = false; // Reset cờ
     }, {passive: true});
 
     document.addEventListener('touchmove', e => {
@@ -668,14 +671,23 @@
         } 
         if (isScrollingY) return;
 
+        // Nếu vuốt ngang đủ dài (>10px), đánh dấu là đang vuốt và chặn cuộn trang
+        if (Math.abs(diffX) > 10) {
+            window.isSwiping = true;
+            e.preventDefault(); // Chặn scroll màn hình khi đang vuốt ngang giúp mượt hơn
+        }
+
         touchCurrentX = e.touches[0].clientX;
         if(diffX < -120) diffX = -120;
         if(diffX > 120) diffX = 120; 
         activeSwipeEl.style.transform = `translateX(${diffX}px)`;
-    }, {passive: true});
+    }, {passive: false}); // Đổi thành false để dùng được preventDefault
 
     document.addEventListener('touchend', e => {
-        if(!activeSwipeEl || isScrollingY) return;
+        if(!activeSwipeEl || isScrollingY) {
+            setTimeout(() => { window.isSwiping = false; }, 50);
+            return;
+        }
         activeSwipeEl.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
         let diffX = touchCurrentX ? (touchCurrentX - touchStartX) : 0;
         
@@ -688,6 +700,9 @@
         }
         activeSwipeEl = null;
         touchCurrentX = 0;
+
+        // Trì hoãn tắt cờ 100ms để chặn trình duyệt tự sinh ra sự kiện 'click' sau touchend
+        setTimeout(() => { window.isSwiping = false; }, 100);
     });
 
     // --- 4. AUTO-SUGGEST ---
@@ -1076,8 +1091,10 @@
                 </div>
                 <div class="${swipeClass}">
                     <div class="debt-top" onclick="toggleAccordion(this)">
-                        <div class="debt-profile" onclick="openProfile('${debt.id}'); event.stopPropagation();">
-                            <div class="avatar" style="background-color: ${avatarBg}">${initial}</div>
+                        <!-- Bỏ onclick ở thẻ debt-profile -->
+                        <div class="debt-profile">
+                            <!-- Chuyển onclick vào thẳng thẻ avatar -->
+                            <div class="avatar" style="background-color: ${avatarBg}; cursor: pointer;" onclick="openProfile('${debt.id}'); event.stopPropagation();">${initial}</div>
                             <div class="debt-info">
                                 <h3>${debt.name}</h3>
                                 <p style="font-size:0.8rem; color:#888;">🕒 ${new Date(debt.timestamp).toLocaleTimeString('vi-VN')}</p>
@@ -1118,8 +1135,9 @@
         document.querySelectorAll('.swipe-content').forEach(el => el.style.transform = 'translateX(0)');
     }
 
-    // --- 9. HỒ SƠ KHÁCH HÀNG (CUSTOMER PROFILE) ---
+    /// --- 9. HỒ SƠ KHÁCH HÀNG (CUSTOMER PROFILE) ---
     window.openProfile = function(id) {
+        if(window.isSwiping) return; // CHỐNG BẤM KHI ĐANG VUỐT
         let debt = currentDebtsMap[id] || currentHistoryArray.find(h=>h.id === id);
         if(!debt) return;
         
@@ -1291,13 +1309,18 @@
                 </div>
                 <div class="swipe-content history-item">
                     <div class="debt-top" onclick="toggleAccordion(this)">
-                        <div class="debt-profile" onclick="openProfile('${item.id}'); event.stopPropagation();">
-                            <div class="avatar" style="background-color: ${avatarBg}; opacity: 0.8">${initial}</div>
+                        <div class="debt-profile">
+                            <div class="avatar" style="background-color: ${avatarBg}; opacity: 0.8; cursor: pointer;" onclick="openProfile('${item.id}'); event.stopPropagation();">${initial}</div>
                             <div class="debt-info">
                                 <h3>${item.name}</h3>
                                 <p style="font-size: 0.8rem; color: #666;">✔️ Thu lúc: ${new Date(item.paidAt).toLocaleTimeString('vi-VN')}</p>
                             </div>
                         </div>
+                        <div class="debt-amount-action">
+                            <div class="debt-amount">+${formatCurrency(item.amount)}</div>
+                            <span class="chevron">▼</span>
+                        </div>
+                    </div>
                         <div class="debt-amount-action">
                             <div class="debt-amount">+${formatCurrency(item.amount)}</div>
                             <span class="chevron">▼</span>
