@@ -455,7 +455,7 @@
             <div style="text-align: center; font-size: 0.8rem; margin-top: 15px; color: #666;">Cảm ơn quý khách và hẹn gặp lại!</div>
         </div>
         <div class="modal-actions" style="justify-content: center; margin-top: 15px;">
-            <button class="btn-modal" style="background: white; color: #333;" onclick="document.getElementById('receiptModal').classList.remove('active')">Đóng</button>
+            <button class="btn-modal" style="background: white; color: #333;" onclick="closeReceiptModal()">Đóng</button>
             <button class="btn-modal" style="background: var(--blue); color: white;" onclick="downloadReceipt()">📥 Tải Ảnh Bill</button>
         </div>
     </div>
@@ -1065,38 +1065,39 @@
             const div = document.createElement('div');
             div.className = 'swipe-container'; 
             div.innerHTML = `
-                <div class="${swipeClass}">
-                    <!-- Bề mặt thẻ (Luôn hiển thị) -->
-                    <div class="debt-top" onclick="toggleAccordion(this)" style="align-items: flex-start;">
+                <div class="${swipeClass}" style="padding: 14px 16px;">
+                    <!-- Bề mặt thẻ -->
+                    <div class="debt-top" onclick="toggleAccordion(this)" style="align-items: center; gap: 10px;">
                         
-                        <div class="debt-profile">
-                            <div class="avatar" style="background-color: ${avatarBg}; cursor: pointer;" onclick="openProfile('${debt.id}'); event.stopPropagation();">${initial}</div>
-                            <div class="debt-info">
-                                <h3 style="margin-bottom: 4px;">${debt.name}</h3>
-                                <p style="font-size:0.8rem; color:#888;">🕒 ${new Date(debt.timestamp).toLocaleTimeString('vi-VN')}</p>
-                                <!-- Hiện SĐT để bấm gọi ngay (nếu có) -->
-                                ${debt.phone ? `<p style="font-size:0.8rem; color:#0288d1; margin-top: 4px; display:inline-block;" onclick="window.location.href='tel:${debt.phone}'; event.stopPropagation();">📞 ${debt.phone}</p>` : ''}
+                        <!-- Cột Trái: Avatar & Thông tin (Giới hạn chiều rộng để không đẩy cột phải) -->
+                        <div class="debt-profile" style="flex: 1; min-width: 0;">
+                            <div class="avatar" style="background-color: ${avatarBg}; cursor: pointer; width: 42px; height: 42px; font-size: 1.1rem;" onclick="openProfile('${debt.id}'); event.stopPropagation();">${initial}</div>
+                            <div class="debt-info" style="overflow: hidden;">
+                                <h3 style="margin-bottom: 2px; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${debt.name}</h3>
+                                <p style="font-size:0.75rem; color:#888;">🕒 ${new Date(debt.timestamp).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}</p>
                             </div>
                         </div>
                         
-                        <!-- Cột hiển thị Tiền & Các nút thao tác nhanh -->
-                        <div class="debt-amount-action" style="align-items: flex-end;">
-                            <div class="debt-amount" style="margin-bottom: 10px; color: ${debt.amount < 0 ? 'var(--green)' : 'var(--red)'}; font-size: 1.1rem;">
+                        <!-- Cột Phải: Tiền & Nút thao tác nhanh (Soft UI) -->
+                        <div class="debt-amount-action" style="flex-shrink: 0; text-align: right;">
+                            <div class="debt-amount" style="margin-bottom: 8px; color: ${debt.amount < 0 ? 'var(--green)' : 'var(--red)'}; font-size: 1.1rem;">
                                 ${debt.amount < 0 ? 'Dư: ' + formatCurrency(Math.abs(debt.amount)) : formatCurrency(debt.amount)}
                             </div>
-                            <div style="display: flex; gap: 6px;">
-                                <button class="btn-action" style="background:#0088FF; padding: 6px 10px; font-size: 0.8rem;" onclick="shareToZalo('${encodedShare}'); event.stopPropagation()">💬 Zalo</button>
+                            <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                <button class="btn-action" style="background:#e3f2fd; color:#0288d1; padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; white-space: nowrap;" onclick="shareToZalo('${encodedShare}'); event.stopPropagation()">💬 Zalo</button>
                                 ${debt.amount > 0 
-                                    ? `<button class="btn-action btn-pay" style="padding: 6px 10px; font-size: 0.8rem;" onclick="openPayModal('${debt.id}'); event.stopPropagation()">💳 Thu</button>` 
-                                    : `<button class="btn-action" style="background:#e0e0e0; color:#555; padding: 6px 10px; font-size: 0.8rem;" disabled>✔ Đã cấn</button>`}
+                                    ? `<button class="btn-action btn-pay" style="background:#e8f5e9; color:#2e7d32; padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; box-shadow: none; white-space: nowrap;" onclick="openPayModal('${debt.id}'); event.stopPropagation()">💳 Thu</button>` 
+                                    : `<span style="background:#f5f5f5; color:#999; padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; display: inline-block; white-space: nowrap;">✔ Đã cấn</span>`}
                             </div>
                         </div>
                     </div>
-                    <!-- Phần nội dung ẩn (Giờ chỉ tập trung hiển thị tên món ăn/uống) -->
+                    
+                    <!-- Phần nội dung ẩn khi xổ thẻ -->
                     <div class="collapsible-content">
-                        <div class="debt-details-box" style="margin-bottom: 0;">
-                            <strong style="color: var(--coffee-dark);">🛒 Chi tiết các món nợ:</strong>
-                            <div style="margin-top: 5px; color: #444; line-height: 1.6;">${debt.items}</div>
+                        <div class="debt-details-box" style="margin-bottom: 0; background: #fafafa; border: none; border-radius: 8px;">
+                            ${debt.phone ? `<p style="font-size:0.85rem; color:#0288d1; margin-bottom: 6px;" onclick="window.location.href='tel:${debt.phone}';">📞 <strong>Gọi SĐT:</strong> ${debt.phone}</p>` : ''}
+                            <strong style="color: #555; font-size: 0.85rem;">🛒 Chi tiết:</strong>
+                            <div style="margin-top: 4px; color: #444; line-height: 1.5; font-size: 0.85rem;">${debt.items}</div>
                         </div>
                     </div>
                 </div>
@@ -1283,33 +1284,33 @@
             const div = document.createElement('div');
             div.className = 'swipe-container';
             div.innerHTML = `
-                <div class="swipe-content history-item">
+                <div class="swipe-content history-item" style="padding: 14px 16px;">
                     <!-- Bề mặt thẻ -->
-                    <div class="debt-top" onclick="toggleAccordion(this)" style="align-items: flex-start;">
+                    <div class="debt-top" onclick="toggleAccordion(this)" style="align-items: center; gap: 10px;">
                         
-                        <div class="debt-profile">
-                            <div class="avatar" style="background-color: ${avatarBg}; opacity: 0.8; cursor: pointer;" onclick="openProfile('${item.id}'); event.stopPropagation();">${initial}</div>
-                            <div class="debt-info">
-                                <h3 style="margin-bottom: 4px;">${item.name}</h3>
-                                <p style="font-size: 0.8rem; color: #666;">✔️ Thu lúc: ${new Date(item.paidAt).toLocaleTimeString('vi-VN')}</p>
+                        <div class="debt-profile" style="flex: 1; min-width: 0;">
+                            <div class="avatar" style="background-color: ${avatarBg}; opacity: 0.8; cursor: pointer; width: 42px; height: 42px; font-size: 1.1rem;" onclick="openProfile('${item.id}'); event.stopPropagation();">${initial}</div>
+                            <div class="debt-info" style="overflow: hidden;">
+                                <h3 style="margin-bottom: 2px; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</h3>
+                                <p style="font-size: 0.75rem; color: #666;">✔️ ${new Date(item.paidAt).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}</p>
                             </div>
                         </div>
                         
-                        <div class="debt-amount-action" style="align-items: flex-end;">
-                            <div class="debt-amount" style="margin-bottom: 10px;">+${formatCurrency(item.amount)}</div>
-                            <div style="display: flex; gap: 6px;">
-                                <button class="btn-action" style="background:var(--blue); padding: 6px 10px; font-size: 0.8rem;" onclick="openReceipt('${item.id}'); event.stopPropagation()">🧾 In Bill</button>
+                        <div class="debt-amount-action" style="flex-shrink: 0; text-align: right;">
+                            <div class="debt-amount" style="margin-bottom: 8px; font-size: 1.1rem;">+${formatCurrency(item.amount)}</div>
+                            <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                <button class="btn-action" style="background:#f3e5f5; color:#8e24aa; padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; white-space: nowrap;" onclick="openReceipt('${item.id}'); event.stopPropagation()">🧾 In Bill</button>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Phần nội dung ẩn -->
                     <div class="collapsible-content">
-                        <div class="debt-details-box" style="border-color:#c8e6c9;">
+                        <div class="debt-details-box" style="border-color:#c8e6c9; background: #fafafa; border: none; border-radius: 8px; font-size: 0.85rem;">
                             🛒 ${item.items}
                         </div>
                         <div style="text-align: right; margin-top: 10px;">
-                            <button class="btn-action" style="background:#f44336; padding: 6px 12px; font-size:0.8rem; display: inline-block;" onclick="if(confirm('Xóa vĩnh viễn hóa đơn này khỏi lịch sử?')) db.ref('history/${item.id}').remove(); event.stopPropagation()">🗑 Xóa hẳn</button>
+                            <button class="btn-action" style="background:#ffebee; color:#d32f2f; padding: 6px 12px; font-size:0.8rem; display: inline-block; border-radius: 8px;" onclick="if(confirm('Xóa vĩnh viễn hóa đơn này khỏi lịch sử?')) db.ref('history/${item.id}').remove(); event.stopPropagation()">🗑 Xóa hẳn</button>
                         </div>
                     </div>
                 </div>
@@ -1334,7 +1335,12 @@
         setTimeout(() => document.getElementById('receiptModal').classList.add('active'), 10);
         document.querySelectorAll('.swipe-content').forEach(el => el.style.transform = 'translateX(0)');
     }
-
+	// Hàm đóng Modal Hóa Đơn đúng chuẩn (chờ mờ đi rồi mới tắt hẳn)
+    window.closeReceiptModal = function() {
+        const modal = document.getElementById('receiptModal');
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 200);
+    }
     window.downloadReceipt = function() {
         let node = document.getElementById('receiptContainer');
         html2canvas(node, {backgroundColor: '#fff', scale: 2}).then(canvas => {
