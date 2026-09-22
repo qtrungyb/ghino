@@ -18,8 +18,12 @@
         body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-main); color: var(--text-dark); -webkit-tap-highlight-color: transparent; overscroll-behavior-y: contain; overflow-x: hidden; }
         
         .app-container { max-width: 600px; margin: 0 auto; padding: 16px; padding-bottom: 80px; contain: content; }
-        .header { text-align: center; padding: 10px 0 20px 0; color: var(--coffee-dark); border-bottom: 2px dashed #ccc; margin-bottom: 20px; }
-        .header h1 { font-size: 1.5rem; margin-bottom: 5px; }
+        /* Tiêu đề App Bar (Nâng cấp) */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 5px 0 15px 0; margin-bottom: 15px; border-bottom: 1px solid #eee; }
+        .header-left { display: flex; align-items: center; gap: 8px; }
+        .header h1 { font-size: 1.2rem; font-weight: 800; color: var(--coffee-dark); margin: 0; }
+        .header-subtitle { font-size: 0.75rem; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header-date { font-size: 0.8rem; font-weight: 600; color: var(--blue); background: #e3f2fd; padding: 4px 10px; border-radius: 12px; }
         
         .summary-card { background: var(--coffee-dark); color: var(--white); padding: 20px; border-radius: var(--radius); text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative;}
         .summary-card.history-card { background: var(--green); }
@@ -36,14 +40,17 @@
         .progress-bar-fill { height: 100%; background: var(--green); transition: width 0.5s ease; }
         .analytics-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.8rem; font-weight: 600; }
 
-        /* Form & Row */
-        .form-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        /* Form & Row (Nâng cấp) */
+        .form-row { display: flex; gap: 12px; margin-bottom: 15px; }
         .form-row .form-group { margin-bottom: 0; flex: 1; position: relative;}
-        .form-group { margin-bottom: 15px; position: relative; }
+        .form-group { margin-bottom: 16px; position: relative; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: #555; }
         .req { color: var(--red); font-weight: bold; }
-        .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: var(--white); transition: border-color 0.2s ease; font-family: inherit;}
-        .form-control:focus { outline: none; border-color: var(--coffee-dark); }
+        
+        /* Ô nhập liệu chuẩn FinTech */
+        .form-control { width: 100%; padding: 14px 16px; border: 2px solid transparent; border-radius: 12px; font-size: 1rem; font-weight: 500; color: #333; background: #f4f6f9; transition: all 0.2s ease; font-family: inherit; box-shadow: inset 0 1px 2px rgba(0,0,0,0.01); }
+        .form-control::placeholder { color: #aaa; font-weight: 400; }
+        .form-control:focus { outline: none; background: #fff; border-color: #bbdefb; box-shadow: 0 4px 12px rgba(2, 136, 209, 0.08); }
         
         /* Auto-suggest dropdown */
         .suggestions-box { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 150px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 4px;}
@@ -58,31 +65,47 @@
         .btn-step { background: #f0f0f0; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; font-weight: bold; color: var(--coffee-dark); cursor: pointer; display: flex; align-items: center; justify-content: center;}
         .qty-input-center { width: 60px; text-align: center; font-size: 1.5rem; font-weight: bold; border: none; color: var(--accent); background: transparent; outline: none; }
         
-        /* Bộ lọc Tab Nhỏ & Chip Menu */
-        .menu-filter-row { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 5px; }
-        .filter-tab { padding: 6px 14px; background: #e0e0e0; border-radius: 20px; font-size: 0.85rem; font-weight: 600; color: #555; cursor: pointer; white-space: nowrap; transition: 0.2s;}
-        .filter-tab.active { background: var(--coffee-dark); color: white; }
+        /* Bộ lọc Menu & Lưới Món Ăn (Nâng cấp chuẩn POS) */
+        .menu-filter-row { display: flex; gap: 10px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+        .menu-filter-row::-webkit-scrollbar { display: none; } /* Ẩn thanh cuộn xấu xí */
+        .filter-tab { padding: 8px 16px; background: #eef1f5; border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: #888; cursor: pointer; white-space: nowrap; transition: all 0.25s ease; border: 1px solid transparent; }
+        .filter-tab.active { background: white; color: var(--blue); box-shadow: 0 4px 10px rgba(2, 136, 209, 0.15); border-color: #e3f2fd; }
         
-        .chip-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; max-height: 220px; overflow-y: auto;}
-        .chip { background: white; border: 1px solid #ddd; padding: 8px 12px; border-radius: 12px; font-size: 0.9rem; cursor: pointer; color: #333; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; min-width: 80px;}
-        .chip.best-seller { border-color: #ff9800; background: #fffdf5; }
-        .chip-name { font-weight: 600; margin-bottom: 2px; }
-        .chip-price { font-size: 0.75rem; color: var(--accent); }
+        /* Hiển thị dạng lưới (Grid) đều tăm tắp */
+        .chip-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 10px; max-height: 260px; overflow-y: auto; padding: 4px; }
+        .chip { background: white; border: none; padding: 12px 8px; border-radius: 14px; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.15s ease; }
+        .chip:active { transform: scale(0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .chip.best-seller { background: linear-gradient(145deg, #fffcf5, #fff8e1); border: 1px solid #ffecb3; box-shadow: 0 4px 10px rgba(255, 152, 0, 0.12); }
+        .chip-name { font-weight: 700; font-size: 0.8rem; color: #444; margin-bottom: 6px; line-height: 1.3; }
+        .chip-price { font-size: 0.75rem; color: var(--blue); font-weight: 700; background: #e3f2fd; padding: 3px 10px; border-radius: 10px; }
+        .chip.best-seller .chip-price { color: #e65100; background: #ffe0b2; }
         
-        /* Tags & Tiền */
-        .tags-input-container { width: 100%; min-height: 48px; padding: 8px; border: 1px solid #ddd; border-radius: 8px; background: var(--white); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-        .selected-tag { background-color: var(--coffee-medium); color: white; padding: 5px 12px; border-radius: 16px; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; }
-        .remove-tag { background-color: rgba(255,255,255,0.25); border-radius: 50%; width: 20px; height: 20px; display: inline-flex; justify-content: center; align-items: center; font-size: 0.8rem; cursor: pointer; }
-        .price-override-btn { position: absolute; right: 10px; top: 35px; background: #ffe0b2; color: #e65100; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: none; }
+        /* Tags, Tiền & Nút Lưu (Nâng cấp) */
+        .tags-input-container { width: 100%; min-height: 52px; padding: 10px; border: 2px solid transparent; border-radius: 12px; background: #f4f6f9; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; transition: 0.2s; }
+        .selected-tag { background-color: var(--coffee-medium); color: white; padding: 6px 12px; border-radius: 16px; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .remove-tag { background-color: rgba(255,255,255,0.25); border-radius: 50%; width: 22px; height: 22px; display: inline-flex; justify-content: center; align-items: center; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+        .remove-tag:active { background-color: rgba(255,255,255,0.5); }
+        .price-override-btn { position: absolute; right: 10px; top: 38px; background: #ffe0b2; color: #e65100; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         
-        /* Segment Control & Toggle */
-        .segment-control { display: flex; background: #f0f0f0; border-radius: 8px; padding: 4px; gap: 4px; width: 100%; }
-        .segment-btn { flex: 1; text-align: center; padding: 10px 5px; border-radius: 6px; cursor: pointer; color: #777; font-size: 0.85rem; font-weight: 600; transition: 0.2s;}
-        .segment-btn.active { background: white; color: var(--coffee-dark); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .btn-submit { width: 100%; background: linear-gradient(135deg, var(--coffee-medium), var(--coffee-dark)); color: var(--white); border: none; padding: 16px; font-size: 1.1rem; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(78, 52, 46, 0.2); margin-top: 10px; transition: 0.2s; letter-spacing: 0.5px;}
+        .btn-submit:active { transform: scale(0.98); box-shadow: 0 2px 6px rgba(78, 52, 46, 0.2); }
+        
+        /* Segment Control (Dạng viên thuốc chuẩn iOS/FinTech) */
+        .segment-control { display: flex; background: #eef1f5; border-radius: 30px; padding: 4px; width: 100%; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+        .segment-btn { flex: 1; text-align: center; padding: 8px 10px; border-radius: 26px; cursor: pointer; color: #888; font-size: 0.85rem; font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; gap: 6px; }
+        
+        /* Hiệu ứng màu riêng cho Ghi nợ và Nạp trước */
+        .segment-btn[data-val="debt"].active { background: white; color: var(--red); box-shadow: 0 2px 10px rgba(229, 57, 53, 0.2); }
+        .segment-btn[data-val="prepaid"].active { background: white; color: var(--green); box-shadow: 0 2px 10px rgba(67, 160, 71, 0.2); }
+        
+        /* Giữ màu cà phê cho tab Phân loại món ở trang Admin */
+        .segment-btn[data-val="food"].active, .segment-btn[data-val="drink"].active, .segment-btn[data-val="other"].active { background: white; color: var(--coffee-dark); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        
+        /* Nút Toggle Switch */
         .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #eef0f3; transition: .3s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         input:checked + .slider { background-color: var(--green); }
         input:checked + .slider:before { transform: translateX(20px); }
 
@@ -218,18 +241,56 @@
 		}
 		.badge-new { background: #e8f5e9; color: var(--green); }
 		.badge-old { background: #ffebee; color: var(--red); }
-		/* --- MODERN DASHBOARD FINTECH --- */
-        .modern-dashboard { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 20px; border: 1px solid #f0f0f0; }
-        .dash-title { font-size: 0.75rem; font-weight: 800; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; text-align: center; }
-        .dash-grid { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
-        .dash-card { flex: 1; text-align: center; }
-        .dash-divider { width: 1px; height: 40px; background: #eee; }
-        .dash-card .d-label { font-size: 0.8rem; color: #777; display: block; margin-bottom: 5px; }
-        .dash-card .d-val { font-size: 1.4rem; font-weight: 900; display: block; margin-bottom: 2px; }
+		/* --- MODERN DASHBOARD FINTECH (Ép gọn) --- */
+        .modern-dashboard { background: linear-gradient(135deg, #ffffff, #fcfcfc); border-radius: 16px; padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px; border: 1px solid #f0f0f0; }
+        .dash-title { font-size: 0.7rem; font-weight: 800; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .dash-grid { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .dash-card { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .dash-card.right { align-items: flex-end; text-align: right; }
+        .dash-divider { width: 1px; height: 36px; background: #eee; margin: 0 15px; }
+        .dash-card .d-label { font-size: 0.75rem; color: #666; font-weight: 600; margin-bottom: 2px; }
+        .dash-card .d-val { font-size: 1.3rem; font-weight: 900; display: block; margin-bottom: 6px; }
+		.dash-card .d-sub { font-size: 0.75rem; color: #888; font-weight: 600; background: #f4f6f9; padding: 3px 8px; border-radius: 10px; display: inline-block; }
         .dash-card.debt .d-val { color: var(--red); }
         .dash-card.prepaid .d-val { color: var(--green); }
-        .dash-card .d-sub { font-size: 0.75rem; color: #999; background: #f9f9f9; padding: 2px 8px; border-radius: 10px; display: inline-block;}
-        .dash-footer { border-top: 1px dashed #eee; padding-top: 15px; }
+        .dash-card .d-sub { font-size: 0.75rem; color: #888; font-weight: 500; }
+        .dash-footer { border-top: 1px dashed #eee; padding-top: 12px; }
+		/* --- ÉP XUNG LÀM GỌN GIAO DIỆN NHẬP LIỆU --- */
+        .form-row { gap: 8px; margin-bottom: 10px; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { margin-bottom: 4px; font-size: 0.8rem; }
+        .form-control { padding: 10px 12px; font-size: 0.95rem; border-radius: 10px; }
+        .tags-input-container { min-height: 40px; padding: 6px 10px; border-radius: 10px; }
+        .selected-tag { padding: 4px 10px; font-size: 0.85rem; border-radius: 12px; }
+        .remove-tag { width: 18px; height: 18px; font-size: 0.75rem; }
+        .menu-filter-row { margin-bottom: 10px; }
+        .chip-container { max-height: 200px; gap: 8px; }
+        .chip { padding: 10px 6px; border-radius: 10px; }
+        .segment-control { padding: 3px; border-radius: 20px; }
+        .segment-btn { padding: 6px 8px; font-size: 0.8rem; border-radius: 16px; }
+		/* --- NHÓM 1: GROUPED FIELDS (Chuẩn iOS) --- */
+        .grouped-card { background: #fff; border-radius: 16px; border: 1px solid #f0f0f0; box-shadow: 0 4px 10px rgba(0,0,0,0.02); overflow: visible; margin-bottom: 15px; position: relative; z-index: 10; }
+        .grouped-item { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #f0f0f0; flex: 1; }
+        .grouped-item:last-child { border-bottom: none; }
+        .grouped-icon { font-size: 1.1rem; width: 24px; text-align: center; color: #888; margin-right: 4px; }
+        .grouped-input { flex: 1; border: none; background: transparent; font-size: 0.95rem; font-weight: 500; color: #333; outline: none; padding: 2px 0; width: 100%; }
+        .grouped-input::placeholder { color: #bbb; font-weight: 400; font-size: 0.85rem; }
+        /* Box chứa Tên và SĐT nằm ngang */
+        .grouped-row { display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; }
+        .grouped-row .grouped-item { border-bottom: none; }
+        .vertical-divider { width: 1px; height: 24px; background: #eee; }
+
+        /* --- NHÓM 2: SMART TIME (Ẩn thông minh) --- */
+        .time-picker-wrapper { display: none; margin-top: 10px; animation: fadeIn 0.2s ease; }
+        .time-picker-wrapper.active { display: block; }
+        .btn-smart-time { background: #f4f6f9; border: none; padding: 8px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; color: #555; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+        .btn-smart-time:active { background: #e0e0e0; }
+
+        /* --- NHÓM 3: THANH TOÁN TẮC KÈ HOA --- */
+        .dynamic-amount { transition: color 0.3s; }
+        .dynamic-btn { transition: background 0.3s, box-shadow 0.3s; }
+        .dynamic-amount.prepaid { color: var(--green) !important; }
+        .dynamic-btn.prepaid { background: var(--green) !important; box-shadow: 0 4px 12px rgba(67, 160, 71, 0.25) !important; }
 </style>
 </head>
 <body>
@@ -237,142 +298,171 @@
 <div id="toastContainer" class="toast-container"></div>
 
 <div class="app-container">
+    <!-- TIÊU ĐỀ APP BAR -->
     <div class="header" id="mainHeader">
-        <h1>☕ Sổ Ghi Nợ</h1>
-        <p>Xôi & Đồ Uống</p>
+        <div class="header-left">
+            <span style="font-size: 1.5rem;">☕</span>
+            <div>
+                <h1>Sổ Ghi Nợ</h1>
+                <div class="header-subtitle">Xôi & Đồ Uống</div>
+            </div>
+        </div>
+        <div class="header-date" id="currentDateDisplay">Hôm nay</div>
     </div>
 
     <!-- TAB 1: NHẬP LIỆU -->
     <div id="tab-input" class="tab-content active">
         <form id="debtForm">
-            <div class="form-row">
-                <div class="form-group" style="flex: 1.5;">
-                    <label>Tên người nợ <span class="req">(*)</span></label>
-                    <input type="text" id="customerName" class="form-control" placeholder="Vd: Anh Tuấn" autocomplete="off" required>
-                    <div id="nameSuggestions" class="suggestions-box"></div>
-                    <div id="oldDebtWarning" class="old-debt-warning"></div>
+            
+            <!-- NHÓM 1: GROUPED FIELDS (Tên, SĐT, Ghi chú) -->
+            <div class="grouped-card">
+                <!-- Dòng 1: Tên và SĐT (Chia đôi) -->
+                <div class="grouped-row">
+                    <div class="grouped-item" style="flex: 1.5; position: relative;">
+                        <span class="grouped-icon">👤</span>
+                        <input type="text" id="customerName" class="grouped-input" placeholder="Tên khách..." autocomplete="off" required>
+                    </div>
+                    <div class="vertical-divider"></div>
+                    <div class="grouped-item" style="flex: 1;">
+                        <span class="grouped-icon">📞</span>
+                        <input type="tel" id="customerPhone" class="grouped-input" placeholder="SĐT...">
+                    </div>
                 </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>Số điện thoại</label>
-                    <input type="tel" id="customerPhone" class="form-control" placeholder="Tùy chọn">
+                
+                <!-- Box gợi ý nổi lên (Neo vào dòng 1) -->
+                <div id="nameSuggestions" class="suggestions-box" style="top: 48px; border-radius: 0 0 12px 12px;"></div>
+                <div id="oldDebtWarning" class="old-debt-warning" style="padding: 0 16px 8px 16px;"></div>
+
+                <!-- Dòng 2: Ghi chú -->
+                <div class="grouped-item">
+                    <span class="grouped-icon">📝</span>
+                    <input type="text" id="orderNote" class="grouped-input" placeholder="Ghi chú thêm (Không bắt buộc)...">
                 </div>
             </div>
 
-            
-            
-            <div style="background: white; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px;">
-                <div class="menu-filter-row">
+            <!-- NHÓM 2: MENU & GIỎ HÀNG -->
+            <div style="background: #f4f6f9; padding: 10px; border-radius: 16px; margin-bottom: 15px;">
+                <div class="menu-filter-row" style="margin-bottom: 8px;">
                     <span class="filter-tab active" onclick="filterMenu('all')">Tất cả</span>
                     <span class="filter-tab" onclick="filterMenu('food')">Đồ ăn 🍛</span>
                     <span class="filter-tab" onclick="filterMenu('drink')">Đồ uống 🍹</span>
                     <span class="filter-tab" onclick="filterMenu('other')">Khác 🏷️</span>
                 </div>
-                <div class="chip-container" id="itemChips"><span style="font-size: 0.85rem; color: #888;">Đang tải danh mục...</span></div>
-            </div>
-
-            <div class="form-group">
-                <label>Chi tiết món nợ <span class="req">(*)</span></label>
-                <div id="selectedTagsContainer" class="tags-input-container"><span style="color:#aaa; font-size:0.9rem;">Trống...</span></div>
+                <div class="chip-container" id="itemChips" style="max-height: 180px;"><span style="font-size: 0.85rem; color: #888;">Đang tải...</span></div>
+                
+                <div id="selectedTagsContainer" class="tags-input-container" style="margin-top: 10px; background: white; border: 1px solid #eee;"><span style="color:#aaa; font-size:0.85rem;">🛒 Chưa có món nào...</span></div>
                 <input type="hidden" id="hiddenItemsString" required>
             </div>
-            
-            <div class="form-row">
-                <div class="form-group" style="flex: 1;">
-                    <label>Ghi chú đơn</label>
-                    <input type="text" id="orderNote" class="form-control" placeholder="Vd: Ít đá...">
-                </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>Thời gian ghi</label>
-                    <input type="datetime-local" id="customTime" class="form-control">
-                </div>
-            </div>
-			<!-- CHỌN LOẠI GIAO DỊCH -->
-            <div class="form-group">
-                <div class="segment-control" id="transactionTypeWrapper">
-                    <div class="segment-btn active" data-val="debt" onclick="setSegment(this, 'transactionType')">🛒 Ghi Nợ</div>
-                    <div class="segment-btn" data-val="prepaid" onclick="setSegment(this, 'transactionType')">💰 Khách Nạp (Trả trước)</div>
+
+            <!-- NHÓM 3: LOẠI GIAO DỊCH & SMART TIME -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <div class="segment-control" id="transactionTypeWrapper" style="width: 65%;">
+                    <div class="segment-btn active" data-val="debt" onclick="setTransactionType(this, 'debt')">📝 Ghi Nợ</div>
+                    <div class="segment-btn" data-val="prepaid" onclick="setTransactionType(this, 'prepaid')">💳 Khách Nạp</div>
                 </div>
                 <input type="hidden" id="transactionType" value="debt">
-            </div>
-            <div class="form-group">
-                <label>Tổng số tiền (VNĐ) <span class="req">(*)</span></label>
-                <input type="number" id="amount" class="form-control" placeholder="Hệ thống tự tính..." required>
-                <button type="button" id="resetPriceBtn" class="price-override-btn">↺ Tính lại</button>
+                
+                <!-- Nút bật thời gian thông minh -->
+                <button type="button" class="btn-smart-time" onclick="document.getElementById('timePickerWrapper').classList.toggle('active')">🕒 Sửa giờ</button>
             </div>
             
-            <button type="submit" class="btn-submit" id="submitBtn">Lưu Vào Sổ Nợ</button>
+            <div id="timePickerWrapper" class="time-picker-wrapper">
+                <input type="datetime-local" id="customTime" class="form-control" style="font-size: 0.85rem; padding: 10px 14px;">
+            </div>
+
+            <!-- NHÓM 4: THANH TOÁN (DYNAMIC BAR) -->
+            <div style="display: flex; gap: 12px; align-items: center; background: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; margin-top: 10px;">
+                
+                <div style="flex: 1; position: relative;">
+                    <label id="totalLabel" style="display: block; font-size: 0.65rem; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 2px;">Khách Nợ <span class="req">*</span></label>
+                    <input type="number" id="amount" class="dynamic-amount" placeholder="0" required style="width: 100%; border: none; background: transparent; font-size: 1.4rem; font-weight: 900; color: var(--accent); outline: none; padding: 0;">
+                    <button type="button" id="resetPriceBtn" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: #ffe0b2; color: #e65100; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer; display: none;">↺ Tính lại</button>
+                </div>
+                
+                <button type="submit" class="btn-submit dynamic-btn" id="submitBtn" style="width: auto; padding: 12px 20px; margin-top: 0; border-radius: 20px; display: flex; align-items: center; gap: 6px; font-size: 0.95rem;">
+                    Lưu Sổ <span style="font-size: 1.1rem; margin-top: -2px;">›</span>
+                </button>
+                
+            </div>
         </form>
     </div>
 
     <!-- TAB 2: DANH SÁCH -->
     <div id="tab-list" class="tab-content">
-        <!-- Dashboard FinTech -->
-        <div class="modern-dashboard">
-            <div class="dash-title">TỔNG QUAN SỔ NỢ</div>
-            <div class="dash-grid">
-                <div class="dash-card debt">
-                    <span class="d-label">Khách nợ quán</span>
-                    <span class="d-val" id="dashTotalDebt">0đ</span>
-                    <span class="d-sub" id="dashCountDebt">0 khoản</span>
+        <!-- Dashboard FinTech (Tối giản chữ) -->
+        <div class="modern-dashboard" style="padding: 14px 16px;">
+            <div class="dash-grid" style="margin-bottom: 10px;">
+                <!-- Cột Đang Nợ -->
+                <div class="dash-card debt" style="align-items: flex-start; text-align: left;">
+                    <span class="d-label" style="text-transform: uppercase; font-size: 0.7rem; color: #888;">Đang nợ</span>
+                    <span class="d-val" id="dashTotalDebt" style="font-size: 1.25rem; margin-bottom: 4px;">0đ</span>
+                    <span class="d-sub" id="dashCountDebt" style="font-size: 0.7rem; padding: 2px 6px;">0 khách</span>
                 </div>
-                <div class="dash-divider"></div>
-                <div class="dash-card prepaid">
-                    <span class="d-label">Khách trả trước</span>
-                    <span class="d-val" id="dashTotalPrepaid">0đ</span>
-                    <span class="d-sub" id="dashCountPrepaid">0 dư</span>
-                </div>
-            </div>
-            <div class="dash-footer">
-                <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:8px;">
-                    <span style="color:#666; font-weight: 600;">Tổng đã thu (Lịch sử)</span>
-                    <strong style="color:var(--blue);" id="dashTotalPaid">0đ</strong>
-                </div>
-                <div class="progress-bar-bg" style="height:6px; background:#f0f0f0;">
-                    <div class="progress-bar-fill" id="analyticsBar" style="background:var(--blue); width:0%;"></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Khối công cụ được làm dính (Sticky) -->
-        <div class="sticky-controls">
-            <div class="search-sort-container">
-                <div class="search-bar-container">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="searchDebtInput" class="search-input" placeholder="Tìm tên, SĐT...">
-                </div>
-                <div class="sort-trigger-btn" onclick="openSortSheet()">
-                    <span id="currentSortLabel">🕒 Mới nhất</span> ▾
+                
+                <div class="dash-divider" style="height: 30px;"></div>
+                
+                <!-- Cột Trả Trước -->
+                <div class="dash-card prepaid" style="align-items: flex-end; text-align: right;">
+                    <span class="d-label" style="text-transform: uppercase; font-size: 0.7rem; color: #888;">Trả trước</span>
+                    <span class="d-val" id="dashTotalPrepaid" style="font-size: 1.25rem; margin-bottom: 4px;">0đ</span>
+                    <span class="d-sub" id="dashCountPrepaid" style="font-size: 0.7rem; padding: 2px 6px;">0 khách</span>
                 </div>
             </div>
             
-            <div class="time-filter-row" style="margin-bottom: 0;">
-                <span class="time-chip active" onclick="filterDebtTime('all')">Tất cả</span>
-                <span class="time-chip" onclick="filterDebtTime('today')">Hôm nay</span>
-                <span class="time-chip" onclick="filterDebtTime('week')">Tuần này</span>
-                <span class="time-chip" onclick="filterDebtTime('older')">Cũ hơn</span>
+            <!-- Thanh Thu Hồi Vốn -->
+            <div class="dash-footer" style="padding-top: 10px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:6px;">
+                    <span style="color:#888;">Đã thu (Lịch sử)</span>
+                    <strong style="color:var(--blue);" id="dashTotalPaid">0đ</strong>
+                </div>
+                <div class="progress-bar-bg" style="height:6px; background:#f0f0f0; border-radius: 4px;">
+                    <div class="progress-bar-fill" id="analyticsBar" style="background:var(--blue); width:0%; border-radius: 4px;"></div>
+                </div>
             </div>
         </div>
-
         
+        <!-- Khối Tìm Kiếm & Lọc (Gộp chung 1 hàng) -->
+        <div class="sticky-controls" style="padding-bottom: 5px; border-bottom: none;">
+            <div class="search-bar-container" style="margin-bottom: 12px;">
+                <span class="search-icon" style="font-size: 1rem;">🔍</span>
+                <input type="text" id="searchDebtInput" class="search-input" placeholder="Tìm tên, SĐT..." style="padding: 10px 12px 10px 38px; border-radius: 12px; font-size: 0.9rem; background: #fff; border: 1px solid #eee;">
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                <div class="time-filter-row" style="margin-bottom: 0; padding-bottom: 0; flex: 1; overflow-x: auto; scrollbar-width: none;">
+                    <span class="time-chip active" onclick="filterDebtTime('all')" style="padding: 5px 12px;">Tất cả</span>
+                    <span class="time-chip" onclick="filterDebtTime('today')" style="padding: 5px 12px;">Hôm nay</span>
+                    <span class="time-chip" onclick="filterDebtTime('week')" style="padding: 5px 12px;">Tuần này</span>
+                </div>
+                <div class="sort-trigger-btn" onclick="openSortSheet()" style="padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; background: #fff; border: 1px solid #eee; height: auto;">
+                    <span id="currentSortLabel">⇅ Sắp xếp</span>
+                </div>
+            </div>
+        </div>
 
         <div class="debt-list" id="debtList"></div>
     </div>
     
     <!-- TAB 3: LỊCH SỬ -->
     <div id="tab-history" class="tab-content">
-        <div class="summary-card history-card">
-            <h2>Đã Thu Của Khách</h2>
-            <div class="total-amount" id="totalHistoryDisplay">
-                0 ₫
-                <div class="total-count" id="totalHistoryCountDisplay">(0 khoản thu)</div>
+        
+        <!-- Thẻ Tổng Thu Tối Giản -->
+        <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(67, 160, 71, 0.1);">
+            <div>
+                <div style="font-size: 0.75rem; color: #2e7d32; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">Tổng đã thu</div>
+                <div style="font-size: 0.7rem; color: #444; background: rgba(255,255,255,0.6); padding: 3px 8px; border-radius: 10px; display: inline-block; font-weight: 600;" id="totalHistoryCountDisplay">0 hóa đơn</div>
             </div>
+            <div style="font-size: 1.6rem; font-weight: 900; color: #1b5e20;" id="totalHistoryDisplay">0đ</div>
         </div>
         
-        <div class="time-filter-row" style="justify-content: center; margin-bottom: 10px;">
-            <span class="time-chip active" onclick="filterHistoryTime('all')">Tất cả</span>
-            <span class="time-chip" onclick="filterHistoryTime('today')">Hôm nay</span>
-            <span class="time-chip" onclick="filterHistoryTime('week')">Tuần này</span>
-            <span class="time-chip" onclick="filterHistoryTime('month')">Tháng này</span>
+        <!-- Bộ lọc thời gian trượt ngang -->
+        <div class="sticky-controls" style="padding-bottom: 5px; border-bottom: none; background: transparent;">
+            <div class="time-filter-row" style="margin-bottom: 0; padding-bottom: 0; overflow-x: auto; scrollbar-width: none;">
+                <span class="time-chip active" onclick="filterHistoryTime('all')" style="padding: 6px 14px;">Tất cả</span>
+                <span class="time-chip" onclick="filterHistoryTime('today')" style="padding: 6px 14px;">Hôm nay</span>
+                <span class="time-chip" onclick="filterHistoryTime('week')" style="padding: 6px 14px;">Tuần này</span>
+                <span class="time-chip" onclick="filterHistoryTime('month')" style="padding: 6px 14px;">Tháng này</span>
+            </div>
         </div>
 
 
@@ -607,10 +697,35 @@
             tabContents.forEach(t => t.classList.remove('active'));
             item.classList.add('active');
             document.getElementById(item.getAttribute('data-target')).classList.add('active');
-            document.getElementById('mainHeader').style.display = item.getAttribute('data-target') === 'tab-menu' ? 'none' : 'block';
+            document.getElementById('mainHeader').style.display = item.getAttribute('data-target') === 'tab-menu' ? 'none' : 'flex';
             window.scrollTo({ top: 0 });
         });
     });
+	// Hiệu ứng Tắc Kè Hoa cho Thanh Thanh Toán
+    window.setTransactionType = function(element, type) {
+        // Đổi màu Segment Control
+        const wrapper = element.parentElement;
+        wrapper.querySelectorAll('.segment-btn').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById('transactionType').value = type;
+
+        // Đổi màu & Chữ của Checkout Bar
+        const amountInput = document.getElementById('amount');
+        const submitBtn = document.getElementById('submitBtn');
+        const totalLabel = document.getElementById('totalLabel');
+
+        if (type === 'prepaid') {
+            amountInput.classList.add('prepaid');
+            submitBtn.classList.add('prepaid');
+            totalLabel.innerHTML = 'Khách Nạp <span class="req">*</span>';
+            submitBtn.innerHTML = 'Nạp Tiền <span style="font-size: 1.1rem; margin-top: -2px;">›</span>';
+        } else {
+            amountInput.classList.remove('prepaid');
+            submitBtn.classList.remove('prepaid');
+            totalLabel.innerHTML = 'Khách Nợ <span class="req">*</span>';
+            submitBtn.innerHTML = 'Lưu Sổ <span style="font-size: 1.1rem; margin-top: -2px;">›</span>';
+        }
+    }
 	// Hàm đóng mở Thẻ thu gọn (Accordion) - Đã được làm gọn và chống lỗi
     window.toggleAccordion = function(element) {
         try {
@@ -724,7 +839,7 @@
         const container = document.getElementById('selectedTagsContainer');
         const hiddenInput = document.getElementById('hiddenItemsString');
         if (selectedTagsArray.length === 0) {
-            container.innerHTML = '<span style="color:#aaa; font-size:0.9rem;">Trống (Bấm vào menu để chọn món)</span>';
+            container.innerHTML = '<span style="color:#aaa; font-size:0.9rem;">Chưa có món nào...</span>';
             hiddenInput.value = "";
             autoCalculateTotal(); return;
         }
@@ -997,16 +1112,6 @@
         renderDebtList(); 
     });
 
-    function updateAnalytics(totalDebt) {
-        let paid = currentHistoryArray.reduce((s, h)=>s+h.amount,0);
-        let total = totalDebt + paid;
-        let percent = total === 0 ? 0 : Math.round((paid / total) * 100);
-        
-        document.getElementById('analyticsBar').style.width = percent + '%';
-        document.getElementById('dashTotalPaid').textContent = formatCurrency(paid);
-    }
-
-
     function renderDebtList() {
         const list = document.getElementById('debtList');
         list.innerHTML = '';
@@ -1032,14 +1137,13 @@
         else if (sortMode === 'az') filteredArray.sort((a, b) => a.name.localeCompare(b.name));
 
         if (filteredArray.length === 0) {
-            list.innerHTML = '<p style="text-align:center; color:#666; margin-top:20px;">Không có khoản nợ nào khớp.</p>';
+            list.innerHTML = '<p style="text-align:center; color:#888; margin-top:30px; font-size: 0.9rem;">Không có khoản nợ nào khớp.</p>';
             return;
         }
 
         let currentGroup = '';
         filteredArray.forEach(debt => {
             
-            // Render Sticky Time Headers if sorting by time
             if(sortMode === 'newest' || sortMode === 'oldest') {
                 let g = getRelativeTimeStr(debt.timestamp);
                 if(g !== currentGroup) {
@@ -1051,12 +1155,6 @@
                 }
             }
 
-            const daysOld = Math.floor((Date.now() - debt.timestamp) / (1000 * 60 * 60 * 24));
-            let swipeClass = 'swipe-content';
-            if (daysOld >= 7) swipeClass += ' aging-red';
-            else if (daysOld >= 3) swipeClass += ' aging-orange';
-
-            const callBtnHtml = debt.phone ? `<a href="tel:${debt.phone}" class="btn-action btn-call" onclick="event.stopPropagation()">📞 Gọi</a>` : '';
             const shareText = `Dạ em gửi anh/chị ${debt.name} hóa đơn ghi nợ:\n🛒 Món: ${debt.items}\n💰 Tổng tiền: ${formatCurrency(debt.amount)}\nLúc nào tiện anh/chị chuyển khoản giúp em nhé. Em cảm ơn!`;
             const encodedShare = encodeURIComponent(shareText);
             const initial = debt.name.charAt(0).toUpperCase();
@@ -1065,39 +1163,38 @@
             const div = document.createElement('div');
             div.className = 'swipe-container'; 
             div.innerHTML = `
-                <div class="${swipeClass}" style="padding: 14px 16px;">
-                    <!-- Bề mặt thẻ -->
+                <div class="swipe-content" style="padding: 12px 14px; border-left: none; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #eee;">
+                    <!-- Bề mặt thẻ (Gọn gàng, hiện đại) -->
                     <div class="debt-top" onclick="toggleAccordion(this)" style="align-items: center; gap: 10px;">
                         
-                        <!-- Cột Trái: Avatar & Thông tin (Giới hạn chiều rộng để không đẩy cột phải) -->
+                        <!-- Avatar & Tên khách -->
                         <div class="debt-profile" style="flex: 1; min-width: 0;">
-                            <div class="avatar" style="background-color: ${avatarBg}; cursor: pointer; width: 42px; height: 42px; font-size: 1.1rem;" onclick="openProfile('${debt.id}'); event.stopPropagation();">${initial}</div>
+                            <div class="avatar" style="background-color: ${avatarBg}; cursor: pointer; width: 38px; height: 38px; font-size: 1rem; border-radius: 10px;" onclick="openProfile('${debt.id}'); event.stopPropagation();">${initial}</div>
                             <div class="debt-info" style="overflow: hidden;">
-                                <h3 style="margin-bottom: 2px; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${debt.name}</h3>
-                                <p style="font-size:0.75rem; color:#888;">🕒 ${new Date(debt.timestamp).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}</p>
+                                <h3 style="margin-bottom: 1px; font-size: 0.95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #2c3e50;">${debt.name}</h3>
+                                <p style="font-size:0.7rem; color:#888;">${new Date(debt.timestamp).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}</p>
                             </div>
                         </div>
                         
-                        <!-- Cột Phải: Tiền & Nút thao tác nhanh (Soft UI) -->
+                        <!-- Số tiền & Nút thao tác nhanh tối giản -->
                         <div class="debt-amount-action" style="flex-shrink: 0; text-align: right;">
-                            <div class="debt-amount" style="margin-bottom: 8px; color: ${debt.amount < 0 ? 'var(--green)' : 'var(--red)'}; font-size: 1.1rem;">
+                            <div class="debt-amount" style="margin-bottom: 6px; color: ${debt.amount < 0 ? 'var(--green)' : 'var(--accent)'}; font-size: 1rem; font-weight: 800;">
                                 ${debt.amount < 0 ? 'Dư: ' + formatCurrency(Math.abs(debt.amount)) : formatCurrency(debt.amount)}
                             </div>
-                            <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                                <button class="btn-action" style="background:#e3f2fd; color:#0288d1; padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; white-space: nowrap;" onclick="shareToZalo('${encodedShare}'); event.stopPropagation()">💬 Zalo</button>
+                            <div style="display: flex; gap: 5px; justify-content: flex-end;">
+                                <button class="btn-action" style="background:#f0f4f8; color:#0288d1; padding: 4px 10px; font-size: 0.7rem; border-radius: 6px; font-weight: 600;" onclick="shareToZalo('${encodedShare}'); event.stopPropagation()">Zalo</button>
                                 ${debt.amount > 0 
-                                    ? `<button class="btn-action btn-pay" style="background:#e8f5e9; color:#2e7d32; padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; box-shadow: none; white-space: nowrap;" onclick="openPayModal('${debt.id}'); event.stopPropagation()">💳 Thu</button>` 
-                                    : `<span style="background:#f5f5f5; color:#999; padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; display: inline-block; white-space: nowrap;">✔ Đã cấn</span>`}
+                                    ? `<button class="btn-action btn-pay" style="background:#e8f5e9; color:#2e7d32; padding: 4px 10px; font-size: 0.7rem; border-radius: 6px; box-shadow: none; font-weight: 600;" onclick="openPayModal('${debt.id}'); event.stopPropagation()">Thu</button>` 
+                                    : `<span style="background:#f5f5f5; color:#999; padding: 4px 10px; font-size: 0.7rem; border-radius: 6px; display: inline-block; font-weight: 600;">Đã cấn</span>`}
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Phần nội dung ẩn khi xổ thẻ -->
+                    <!-- Phần nội dung ẩn khi xổ thẻ (Lược bỏ chữ thừa) -->
                     <div class="collapsible-content">
-                        <div class="debt-details-box" style="margin-bottom: 0; background: #fafafa; border: none; border-radius: 8px;">
-                            ${debt.phone ? `<p style="font-size:0.85rem; color:#0288d1; margin-bottom: 6px;" onclick="window.location.href='tel:${debt.phone}';">📞 <strong>Gọi SĐT:</strong> ${debt.phone}</p>` : ''}
-                            <strong style="color: #555; font-size: 0.85rem;">🛒 Chi tiết:</strong>
-                            <div style="margin-top: 4px; color: #444; line-height: 1.5; font-size: 0.85rem;">${debt.items}</div>
+                        <div class="debt-details-box" style="margin-bottom: 0; background: #f8fafc; border: none; border-radius: 8px; padding: 10px 12px;">
+                            ${debt.phone ? `<div style="font-size:0.85rem; color:#0288d1; margin-bottom: 6px; display: inline-block;" onclick="window.location.href='tel:${debt.phone}';">📞 ${debt.phone}</div>` : ''}
+                            <div style="color: #444; line-height: 1.5; font-size: 0.85rem;">🛒 ${debt.items}</div>
                         </div>
                     </div>
                 </div>
@@ -1258,8 +1355,9 @@
         });
 
         if (filteredHistory.length === 0) {
-            list.innerHTML = '<p style="text-align:center; color:#666; margin-top:20px;">Không có lịch sử thu tiền.</p>';
-            document.getElementById('totalHistoryDisplay').innerHTML = `0 ₫ <div class="total-count" id="totalHistoryCountDisplay">(0 khoản thu)</div>`;
+            list.innerHTML = '<p style="text-align:center; color:#888; margin-top:30px; font-size: 0.9rem;">Không có lịch sử thu tiền.</p>';
+            document.getElementById('totalHistoryDisplay').textContent = '0 ₫';
+            document.getElementById('totalHistoryCountDisplay').textContent = '0 hóa đơn';
             return;
         }
 
@@ -1268,7 +1366,6 @@
             totalHistory += item.amount;
             countHistory++;
             
-            // Render Sticky Time Headers
             let g = getRelativeTimeStr(item.paidAt);
             if(g !== currentGroup) {
                 currentGroup = g;
@@ -1284,33 +1381,31 @@
             const div = document.createElement('div');
             div.className = 'swipe-container';
             div.innerHTML = `
-                <div class="swipe-content history-item" style="padding: 14px 16px;">
+                <div class="swipe-content history-item" style="padding: 12px 14px; border-left: none; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #eee;">
                     <!-- Bề mặt thẻ -->
                     <div class="debt-top" onclick="toggleAccordion(this)" style="align-items: center; gap: 10px;">
                         
                         <div class="debt-profile" style="flex: 1; min-width: 0;">
-                            <div class="avatar" style="background-color: ${avatarBg}; opacity: 0.8; cursor: pointer; width: 42px; height: 42px; font-size: 1.1rem;" onclick="openProfile('${item.id}'); event.stopPropagation();">${initial}</div>
+                            <div class="avatar" style="background-color: ${avatarBg}; opacity: 0.8; cursor: pointer; width: 38px; height: 38px; font-size: 1rem; border-radius: 10px;" onclick="openProfile('${item.id}'); event.stopPropagation();">${initial}</div>
                             <div class="debt-info" style="overflow: hidden;">
-                                <h3 style="margin-bottom: 2px; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</h3>
-                                <p style="font-size: 0.75rem; color: #666;">✔️ ${new Date(item.paidAt).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}</p>
+                                <h3 style="margin-bottom: 1px; font-size: 0.95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #2c3e50;">${item.name}</h3>
+                                <p style="font-size: 0.7rem; color: #888;">✔️ ${new Date(item.paidAt).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}</p>
                             </div>
                         </div>
                         
                         <div class="debt-amount-action" style="flex-shrink: 0; text-align: right;">
-                            <div class="debt-amount" style="margin-bottom: 8px; font-size: 1.1rem;">+${formatCurrency(item.amount)}</div>
-                            <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                                <button class="btn-action" style="background:#f3e5f5; color:#8e24aa; padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; white-space: nowrap;" onclick="openReceipt('${item.id}'); event.stopPropagation()">🧾 In Bill</button>
+                            <div class="debt-amount" style="margin-bottom: 6px; font-size: 1rem; font-weight: 800; color: var(--green);">+${formatCurrency(item.amount)}</div>
+                            <div style="display: flex; gap: 5px; justify-content: flex-end;">
+                                <button class="btn-action" style="background:#f3e5f5; color:#8e24aa; padding: 4px 10px; font-size: 0.7rem; border-radius: 6px; font-weight: 600;" onclick="openReceipt('${item.id}'); event.stopPropagation()">In Bill</button>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Phần nội dung ẩn -->
+                    <!-- Phần nội dung ẩn: Gộp nút Xóa lên cùng hàng với chi tiết -->
                     <div class="collapsible-content">
-                        <div class="debt-details-box" style="border-color:#c8e6c9; background: #fafafa; border: none; border-radius: 8px; font-size: 0.85rem;">
-                            🛒 ${item.items}
-                        </div>
-                        <div style="text-align: right; margin-top: 10px;">
-                            <button class="btn-action" style="background:#ffebee; color:#d32f2f; padding: 6px 12px; font-size:0.8rem; display: inline-block; border-radius: 8px;" onclick="if(confirm('Xóa vĩnh viễn hóa đơn này khỏi lịch sử?')) db.ref('history/${item.id}').remove(); event.stopPropagation()">🗑 Xóa hẳn</button>
+                        <div class="debt-details-box" style="margin-bottom: 0; background: #f8fafc; border: none; border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                            <div style="color: #444; line-height: 1.5; font-size: 0.85rem; flex: 1;">🛒 ${item.items}</div>
+                            <button class="btn-action" style="background:#ffebee; color:#d32f2f; padding: 6px 10px; font-size:0.8rem; border-radius: 8px; flex-shrink: 0;" onclick="if(confirm('Xóa hóa đơn này?')) db.ref('history/${item.id}').remove(); event.stopPropagation()">🗑 Xóa</button>
                         </div>
                     </div>
                 </div>
@@ -1318,7 +1413,8 @@
             list.appendChild(div);
         });
 
-        document.getElementById('totalHistoryDisplay').innerHTML = `${formatCurrency(totalHistory)} <div class="total-count" id="totalHistoryCountDisplay">(${countHistory} khoản thu)</div>`;
+        document.getElementById('totalHistoryDisplay').textContent = formatCurrency(totalHistory);
+        document.getElementById('totalHistoryCountDisplay').textContent = `${countHistory} hóa đơn`;
     }
 
     // --- HÓA ĐƠN ĐIỆN TỬ (E-RECEIPT) ---
@@ -1351,6 +1447,10 @@
             showToast("Đã tải Ảnh Hóa Đơn!");
         });
     }
+	// Hiển thị ngày tháng trên Header
+    const today = new Date();
+    const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    document.getElementById('currentDateDisplay').textContent = `${days[today.getDay()]}, ${today.getDate()}/${today.getMonth() + 1}`;
 </script>
 </body>
 </html>
