@@ -284,16 +284,71 @@
         .dynamic-btn { transition: background 0.3s, box-shadow 0.3s; }
         .dynamic-amount.prepaid { color: var(--green) !important; }
         .dynamic-btn.prepaid { background: var(--green) !important; box-shadow: 0 4px 12px rgba(67, 160, 71, 0.25) !important; }
-		* --- NÂNG CẤP GIỎ HÀNG CHUẨN POS --- */
-        .tags-input-container { width: 100%; min-height: 52px; padding: 8px; border: 1px solid #f0f0f0; border-radius: 14px; background: #fff; display: flex; flex-direction: column; gap: 8px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02); }
-        .selected-tag { background-color: #f8fafc; padding: 8px 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e7eb; width: 100%; box-sizing: border-box; transition: 0.2s; }
-        .tag-name { font-weight: 600; font-size: 0.95rem; color: #1f2937; display: flex; align-items: center; gap: 6px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+		/* --- GIỎ HÀNG NGUYÊN KHỐI (UNIFIED CARD) SIÊU MƯỢT --- */
+        .tags-input-container { width: 100%; background: #ffffff; border: 1px solid #f0f0f0; border-radius: 16px; padding: 0 16px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.02); margin-bottom: 15px; min-height: unset; }
+        .selected-tag { padding: 16px 0; border-bottom: 1px solid #f4f6f8; display: flex; justify-content: space-between; align-items: center; width: 100%; background: transparent; box-shadow: none; border-radius: 0; }
+        .selected-tag:last-child { border-bottom: none; }
         
-        /* Bộ đếm số lượng (+ / -) */
-        .qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); flex-shrink: 0; }
-        .qty-btn { background: transparent; color: #6b7280; border: none; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; border-radius: 6px; transition: 0.15s; }
-        .qty-btn:active { background: #f3f4f6; color: #1f2937; }
-        .qty-value { font-weight: 800; font-size: 1rem; color: var(--blue); width: 30px; text-align: center; }
+        .tag-info { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; padding-right: 12px; }
+        .tag-name { font-weight: 700; font-size: 0.95rem; color: #1e293b; line-height: 1.3; }
+        .tag-meta { display: flex; align-items: baseline; gap: 6px; }
+        .tag-total { font-weight: 800; font-size: 0.95rem; color: var(--accent); }
+        .tag-unit { font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+        
+        /* Stepper iOS Style (Bộ đếm thanh lịch) */
+        .qty-control { display: flex; align-items: center; background: #f1f5f9; border-radius: 10px; padding: 3px; flex-shrink: 0; }
+        .qty-btn { background: #ffffff; color: #334155; border: none; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.15s; }
+        .qty-btn:active { transform: scale(0.9); background: #e2e8f0; }
+        .qty-value { font-weight: 700; font-size: 1rem; color: #0f172a; width: 32px; text-align: center; }
+
+        /* --- NÂNG CẤP GIAO DIỆN CHỌN MÓN (CHÍNH THỨC) --- */
+        .chip-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)) !important; gap: 12px !important; max-height: 300px !important; overflow-y: auto; padding: 8px 4px !important; }
+        .chip { background: #ffffff !important; border: 1px solid #e2e8f0 !important; padding: 18px 10px 14px 10px !important; border-radius: 16px !important; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 3px 6px rgba(0,0,0,0.02), 0 1px 3px rgba(0,0,0,0.02) !important; position: relative; overflow: visible !important; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+        .chip:active { transform: scale(0.94) !important; background: #f8fafc !important; }
+        
+        .chip-name { font-weight: 700 !important; font-size: 0.9rem !important; color: #334155 !important; margin-bottom: 8px !important; line-height: 1.3 !important; }
+        .chip-price { font-size: 0.85rem !important; color: #0284c7 !important; font-weight: 800 !important; background: #e0f2fe !important; padding: 4px 14px !important; border-radius: 12px !important; }
+        
+        /* Hiệu ứng thẻ Best Seller */
+        .chip.best-seller { background: linear-gradient(145deg, #fffbeb, #ffffff) !important; border-color: #fde68a !important; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.08) !important; }
+        .chip.best-seller .chip-price { color: #b45309 !important; background: #fef08a !important; }
+        .chip.best-seller::before { content: '⭐ Bán chạy'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #f59e0b; color: white; font-size: 0.65rem; font-weight: 800; padding: 3px 10px; border-radius: 8px; white-space: nowrap; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2); }
+		/* --- NÂNG CẤP GIAO DIỆN GIỎ HÀNG CHUẨN APP GRAB/SHOPEE --- */
+        .tags-input-container { width: 100%; min-height: 52px; padding: 4px; border: none; border-radius: 0; background: transparent; display: flex; flex-direction: column; gap: 10px; box-shadow: none; margin-bottom: 12px; }
+        .selected-tag { background-color: #ffffff; padding: 14px 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02), 0 1px 3px rgba(0,0,0,0.02); width: 100%; box-sizing: border-box; transition: 0.2s; }
+        
+        /* Cột thông tin món bên trái */
+        .tag-info { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; padding-right: 12px; }
+        .tag-name { font-weight: 700; font-size: 1.05rem; color: #1e293b; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tag-price { font-size: 0.85rem; font-weight: 700; color: var(--accent); }
+        
+        /* Bộ đếm số lượng (+ / -) Dạng Pill siêu đẹp */
+        .qty-control { display: flex; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 30px; padding: 4px; flex-shrink: 0; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
+        .qty-btn { background: #ffffff; color: #475569; border: 1px solid #e2e8f0; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; font-weight: 400; cursor: pointer; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.04); transition: 0.15s; }
+        .qty-btn:active { background: #f1f5f9; transform: scale(0.9); }
+        .qty-value { font-weight: 800; font-size: 1.1rem; color: #0f172a; width: 38px; text-align: center; }
+		/* --- HIỆU ỨNG & EMPTY STATE GIỎ HÀNG --- */
+        .empty-cart { padding: 25px 10px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+        .empty-cart-icon { font-size: 3rem; opacity: 0.15; filter: grayscale(1); margin-bottom: -5px; }
+        .empty-cart-text { font-size: 0.85rem; color: #94a3b8; font-weight: 500; line-height: 1.4; }
+
+        /* Hiệu ứng chớp sáng nền (Cố định nền trắng, không lộ màu đỏ) */
+        @keyframes flashHighlight {
+            0% { background-color: #ecfdf5; }
+            50% { background-color: #d1fae5; }
+            100% { background-color: #ffffff; }
+        }
+        
+        /* Cấu trúc Vuốt để xóa (Swipe to Delete) trong Giỏ hàng */
+        .cart-item-wrapper { position: relative; overflow: hidden; border-bottom: 1px solid #f4f6f8; border-radius: 0; }
+        .cart-item-wrapper:last-child { border-bottom: none; }
+        .cart-item-wrapper.flash-active .cart-swipe-content { animation: flashHighlight 0.8s ease-out; }
+
+        .cart-swipe-bg { position: absolute; top: 0; right: 0; bottom: 0; width: 75px; background: #fee2e2; display: flex; align-items: center; justify-content: center; z-index: 1; border-radius: 0 12px 12px 0; }
+        .cart-swipe-bg button { background: none; border: none; color: #ef4444; font-weight: 700; font-size: 0.8rem; cursor: pointer; height: 100%; width: 100%; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+        .cart-swipe-content { position: relative; z-index: 2; background: #fff; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); will-change: transform; width: 100%; }
+        /* Tắt border cũ vì đã chuyển sang wrapper */
+        .cart-swipe-content.selected-tag { border-bottom: none; padding-left: 0; padding-right: 0; }
 </style>
 </head>
 <body>
@@ -917,7 +972,48 @@
     let isPriceManuallyEdited = false;
     let selectedTagsArray = []; 
     let currentMenuData = []; 
+	// --- LƯU NHÁP VÀO LOCAL STORAGE ---
+    function saveDraft() {
+        const draft = {
+            name: document.getElementById('customerName').value,
+            phone: document.getElementById('customerPhone').value,
+            note: document.getElementById('orderNote').value,
+            amount: document.getElementById('amount').value,
+            isPriceManuallyEdited: isPriceManuallyEdited,
+            tags: selectedTagsArray
+        };
+        localStorage.setItem('debtAppDraft', JSON.stringify(draft));
+    }
 
+    function loadDraft() {
+        const draftStr = localStorage.getItem('debtAppDraft');
+        if (draftStr) {
+            try {
+                const draft = JSON.parse(draftStr);
+                document.getElementById('customerName').value = draft.name || '';
+                document.getElementById('customerPhone').value = draft.phone || '';
+                document.getElementById('orderNote').value = draft.note || '';
+                
+                if (draft.tags && Array.isArray(draft.tags)) {
+                    selectedTagsArray = draft.tags;
+                }
+                
+                if (draft.isPriceManuallyEdited) {
+                    isPriceManuallyEdited = true;
+                    document.getElementById('amount').value = draft.amount || '';
+                    document.getElementById('resetPriceBtn').style.display = 'block';
+                }
+            } catch(e) { console.error("Lỗi đọc draft"); }
+        }
+    }
+
+    // Lắng nghe sự kiện gõ phím để lưu tự động
+    ['customerName', 'customerPhone', 'orderNote', 'amount'].forEach(id => {
+        document.getElementById(id).addEventListener('input', saveDraft);
+    });
+
+    // Khởi chạy loadDraft ngay khi khởi tạo
+    setTimeout(() => { loadDraft(); renderTags(); }, 500);
     amountInput.addEventListener('input', () => { isPriceManuallyEdited = true; resetPriceBtn.style.display = 'block'; });
     resetPriceBtn.addEventListener('click', () => { isPriceManuallyEdited = false; resetPriceBtn.style.display = 'none'; autoCalculateTotal(); });
 
@@ -927,34 +1023,49 @@
         amountInput.value = total > 0 ? total : '';
     }
 
-    // Render Giỏ hàng chuẩn POS (Tab Nhập Liệu)
-    function renderTags() {
+    // Render Giỏ hàng Nhập Liệu (Unified Card)
+    function renderTags(flashItemName = null) {
         const container = document.getElementById('selectedTagsContainer');
         const hiddenInput = document.getElementById('hiddenItemsString');
         if (selectedTagsArray.length === 0) {
-            container.innerHTML = '<div style="color:#aaa; font-size:0.9rem; text-align: center; padding: 10px 0;">🛒 Chưa có món nào...</div>';
+            container.innerHTML = `
+                <div class="empty-cart">
+                    <div class="empty-cart-icon">🛒</div>
+                    <div class="empty-cart-text">Giỏ hàng đang trống.<br>Chạm vào thực đơn bên dưới để thêm món!</div>
+                </div>`;
             hiddenInput.value = "";
             autoCalculateTotal(); return;
         }
         container.innerHTML = '';
         selectedTagsArray.forEach(tagObj => {
             const el = document.createElement('div');
-            el.className = 'selected-tag';
+            el.className = 'cart-item-wrapper' + (flashItemName === tagObj.name ? ' flash-active' : '');
             el.innerHTML = `
-                <div class="tag-name">${tagObj.name}</div>
-                <div class="qty-control">
-                    <button type="button" class="qty-btn" onclick="updateTagQty('${tagObj.name}', -1)">−</button>
-                    <div class="qty-value">${tagObj.qty}</div>
-                    <button type="button" class="qty-btn" onclick="updateTagQty('${tagObj.name}', 1)">+</button>
+                <div class="cart-swipe-bg">
+                    <button type="button" onclick="updateTagQty('${tagObj.name}', -999)"><span style="font-size: 1.3rem;">🗑</span>Xóa</button>
+                </div>
+                <div class="cart-swipe-content selected-tag" ontouchstart="cartTouchStart(event)" ontouchmove="cartTouchMove(event)" ontouchend="cartTouchEnd(event)">
+                    <div class="tag-info">
+                        <div class="tag-name">${tagObj.name}</div>
+                        <div class="tag-meta">
+                            <span class="tag-total">${formatCurrency(tagObj.totalPrice)}</span>
+                            <span class="tag-unit">(${formatCurrency(tagObj.unitPrice)}/món)</span>
+                        </div>
+                    </div>
+                    <div class="qty-control">
+                        <button type="button" class="qty-btn" onclick="updateTagQty('${tagObj.name}', -1)">−</button>
+                        <div class="qty-value">${tagObj.qty}</div>
+                        <button type="button" class="qty-btn" onclick="updateTagQty('${tagObj.name}', 1)">+</button>
+                    </div>
                 </div>
             `;
             container.appendChild(el);
         });
         hiddenInput.value = selectedTagsArray.map(t => `${t.qty} ${t.name}`).join(', ');
         autoCalculateTotal(); 
+        if (typeof saveDraft === 'function') saveDraft();
     }
 
-    // Bấm menu tự động cộng dồn
     window.addQuickItem = function(itemName, itemPrice) {
         let existing = selectedTagsArray.find(t => t.name === itemName);
         if (existing) {
@@ -963,7 +1074,7 @@
         } else {
             selectedTagsArray.push({ name: itemName, qty: 1, unitPrice: parseFloat(itemPrice), totalPrice: parseFloat(itemPrice) });
         }
-        renderTags();
+        renderTags(itemName); // Báo cho hàm render biết món nào vừa được cộng để nhá sáng
     }
 
     window.updateTagQty = function(name, change) {
@@ -991,7 +1102,11 @@
         const category = document.getElementById('newMenuCategory').value; 
         const isBestSeller = document.getElementById('newMenuBestSeller').checked; 
         if(!name || isNaN(price)) return;
-        const finalName = getEmojiPrefix(name) + name;
+        
+        // Tự động gắn icon theo category để sửa lỗi getEmojiPrefix
+        const catIcon = category === 'food' ? '🍛 ' : (category === 'drink' ? '🍹 ' : '🏷️ ');
+        const finalName = catIcon + name;
+        
         menuRef.push({ name: finalName, price, category, isBestSeller, timestamp: Date.now() })
             .then(() => {
                 document.getElementById('menuForm').reset();
@@ -1144,6 +1259,8 @@
         resetPriceBtn.style.display = 'none';
         oldDebtWarning.style.display = 'none';
         document.getElementById('submitBtn').disabled = false;
+        
+        localStorage.removeItem('debtAppDraft'); // XÓA NHÁP KHI LƯU THÀNH CÔNG
         
         showToast("Đã lưu vào sổ nợ!");
         navItems[1].click(); 
@@ -1489,41 +1606,43 @@
         autoCalculateEditTotal(); 
     });
 
-    // Render Giỏ hàng chuẩn POS (Modal Sửa Nợ)
-    function renderEditTags() {
+    // Render Giỏ hàng Sửa Nợ (Unified Card)
+    function renderEditTags(flashItemName = null) {
         const container = document.getElementById('editSelectedTagsContainer');
         if (editTagsArray.length === 0) {
-            container.innerHTML = '<div style="color:#aaa; font-size:0.9rem; text-align: center; padding: 10px 0;">🛒 Xóa hết rồi... Chọn lại món nhé!</div>';
+            container.innerHTML = `
+                <div class="empty-cart">
+                    <div class="empty-cart-icon">🛒</div>
+                    <div class="empty-cart-text">Giỏ hàng đang trống.<br>Hãy chọn lại món nhé!</div>
+                </div>`;
             autoCalculateEditTotal(); return;
         }
         container.innerHTML = '';
         editTagsArray.forEach(tagObj => {
             const el = document.createElement('div');
-            el.className = 'selected-tag';
+            el.className = 'cart-item-wrapper' + (flashItemName === tagObj.name ? ' flash-active' : '');
             el.innerHTML = `
-                <div class="tag-name">${tagObj.name}</div>
-                <div class="qty-control">
-                    <button type="button" class="qty-btn" onclick="updateEditTagQty('${tagObj.name}', -1)">−</button>
-                    <div class="qty-value">${tagObj.qty}</div>
-                    <button type="button" class="qty-btn" onclick="updateEditTagQty('${tagObj.name}', 1)">+</button>
+                <div class="cart-swipe-bg">
+                    <button type="button" onclick="updateEditTagQty('${tagObj.name}', -999)"><span style="font-size: 1.3rem;">🗑</span>Xóa</button>
+                </div>
+                <div class="cart-swipe-content selected-tag" ontouchstart="cartTouchStart(event)" ontouchmove="cartTouchMove(event)" ontouchend="cartTouchEnd(event)">
+                    <div class="tag-info">
+                        <div class="tag-name">${tagObj.name}</div>
+                        <div class="tag-meta">
+                            <span class="tag-total">${formatCurrency(tagObj.totalPrice)}</span>
+                            <span class="tag-unit">(${formatCurrency(tagObj.unitPrice)}/món)</span>
+                        </div>
+                    </div>
+                    <div class="qty-control">
+                        <button type="button" class="qty-btn" onclick="updateEditTagQty('${tagObj.name}', -1)">−</button>
+                        <div class="qty-value">${tagObj.qty}</div>
+                        <button type="button" class="qty-btn" onclick="updateEditTagQty('${tagObj.name}', 1)">+</button>
+                    </div>
                 </div>
             `;
             container.appendChild(el);
         });
         autoCalculateEditTotal(); 
-    }
-
-    window.updateEditTagQty = function(name, change) {
-        let item = editTagsArray.find(t => t.name === name);
-        if(item) {
-            item.qty += change;
-            if(item.qty <= 0) {
-                editTagsArray = editTagsArray.filter(t => t.name !== name);
-            } else {
-                item.totalPrice = item.qty * item.unitPrice;
-            }
-            renderEditTags();
-        }
     }
 
     window.addQuickEditItem = function(itemName, itemPrice) {
@@ -1534,7 +1653,7 @@
         } else {
             editTagsArray.push({ name: itemName, qty: 1, unitPrice: parseFloat(itemPrice), totalPrice: parseFloat(itemPrice) });
         }
-        renderEditTags();
+        renderEditTags(itemName); // Báo cho hàm render biết món nào vừa được cộng để nhá sáng
     }
 
     window.filterEditMenu = function(cat, element) {
@@ -1695,7 +1814,29 @@
         
         document.getElementById('receiptName').textContent = h.name;
         document.getElementById('receiptDate').textContent = new Date(h.paidAt).toLocaleString('vi-VN');
-        document.getElementById('receiptItems').innerHTML = h.items.replace(/,/g, '<br>•');
+        
+        // Căn chỉnh danh sách món thẳng hàng, chuẩn máy POS
+        let itemsArr = h.items.split(',');
+        let itemsHtml = '';
+        itemsArr.forEach(item => {
+            let cleanItem = item.trim();
+            if (cleanItem) {
+                let isPartial = false;
+                if (cleanItem.includes('[Trả một phần]')) {
+                    isPartial = true;
+                    // Xóa nhãn cũ khỏi tên món để hiển thị riêng bên phải
+                    cleanItem = cleanItem.replace('[Trả một phần]', '').trim();
+                }
+                
+                itemsHtml += `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px dotted #ccc; line-height: 1.4;">
+                        <span style="text-align: left; flex: 1; padding-right: 10px;">${cleanItem}</span>
+                        ${isPartial ? '<span style="color: #d32f2f; font-weight: bold; font-size: 0.7rem; background: #ffebee; padding: 2px 6px; border-radius: 4px; white-space: nowrap; margin-top: 2px;">[Trả một phần]</span>' : ''}
+                    </div>`;
+            }
+        });
+        
+        document.getElementById('receiptItems').innerHTML = itemsHtml;
         document.getElementById('receiptTotalAmount').textContent = formatCurrency(h.amount);
         
         document.getElementById('receiptModal').style.display = 'flex';
@@ -1710,18 +1851,68 @@
     }
     window.downloadReceipt = function() {
         let node = document.getElementById('receiptContainer');
-        html2canvas(node, {backgroundColor: '#fff', scale: 2}).then(canvas => {
-            let a = document.createElement('a');
-            a.href = canvas.toDataURL('image/png');
-            a.download = `HoaDon_${Date.now()}.png`;
-            a.click();
-            showToast("Đã tải Ảnh Hóa Đơn!");
+        
+        // Thêm hiệu ứng loading cho nút bấm để người dùng biết máy đang xử lý
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳ Đang tạo ảnh...';
+        btn.style.opacity = '0.7';
+        btn.disabled = true;
+
+        html2canvas(node, {backgroundColor: '#fff', scale: 3}).then(canvas => {
+            btn.innerHTML = originalText;
+            btn.style.opacity = '1';
+            btn.disabled = false;
+
+            canvas.toBlob(function(blob) {
+                const file = new File([blob], `HoaDon_${Date.now()}.png`, { type: 'image/png' });
+
+                // Dùng Web Share API: Trải nghiệm hoàn hảo cho iPhone (iOS) và Android đời mới
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({
+                        files: [file],
+                        title: 'Hóa Đơn Sổ Nợ',
+                        text: 'Gửi bạn hóa đơn thanh toán nhé!'
+                    }).catch(err => console.log('Người dùng hủy chia sẻ:', err));
+                } else {
+                    // Fallback: Nếu dùng máy tính Chrome/Cốc Cốc thì tải thẳng file về máy
+                    let a = document.createElement('a');
+                    a.href = canvas.toDataURL('image/png');
+                    a.download = `HoaDon_${Date.now()}.png`;
+                    a.click();
+                    showToast("Đã tải Ảnh Hóa Đơn!");
+                }
+            }, 'image/png');
         });
     }
 	// Hiển thị ngày tháng trên Header
     const today = new Date();
     const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
     document.getElementById('currentDateDisplay').textContent = `${days[today.getDay()]}, ${today.getDate()}/${today.getMonth() + 1}`;
+	// --- XỬ LÝ VUỐT XÓA MÓN TRONG GIỎ HÀNG ---
+    let cartStartX = 0;
+    let cartCurrentX = 0;
+    window.cartTouchStart = function(e) {
+        cartStartX = e.touches[0].clientX;
+        cartCurrentX = cartStartX;
+        e.currentTarget.style.transition = 'none';
+    };
+    window.cartTouchMove = function(e) {
+        cartCurrentX = e.touches[0].clientX;
+        let diff = cartCurrentX - cartStartX;
+        if (diff < 0 && diff > -90) { // Chỉ cho phép vuốt sang trái tối đa 90px
+            e.currentTarget.style.transform = `translateX(${diff}px)`;
+        }
+    };
+    window.cartTouchEnd = function(e) {
+        e.currentTarget.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+        let diff = cartCurrentX - cartStartX;
+        if (diff < -40) { // Nếu vuốt quá nửa, mở hẳn nút xóa
+            e.currentTarget.style.transform = `translateX(-75px)`;
+        } else { // Vuốt nhẹ thì bật ngược lại
+            e.currentTarget.style.transform = `translateX(0)`;
+        }
+    };
 </script>
 </body>
 </html>
