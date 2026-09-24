@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#4e342e">
-    <title>Sổ Ghi Nợ - Xôi & Cafe</title>
+    <title>Sổ ghi nợ</title>
     <!-- Thư viện tạo ảnh Hóa Đơn -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -109,9 +109,30 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--white); display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; }
-        .nav-item { flex: 1; text-align: center; padding: 10px 0; color: #999; font-weight: 600; cursor: pointer; border-top: 3px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-item.active { color: var(--coffee-dark); border-top-color: var(--coffee-dark); background-color: #fafafa; }
+        /* --- BOTTOM NAV LƠ LỬNG & MÀU SẮC NĂNG ĐỘNG --- */
+        .app-container { padding-bottom: 110px !important; }
+        
+        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 450px; background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 8px 32px rgba(0,0,0,0.06); z-index: 1000; border-radius: 30px; padding: 6px 4px; border: 1px solid rgba(255,255,255,0.8); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.5s ease; }
+        
+        .bottom-nav.hidden { transform: translate(-50%, 150%); } 
+
+        .nav-item { flex: 1; text-align: center; color: #94a3b8; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; transition: 0.3s; background: transparent; -webkit-tap-highlight-color: transparent; padding: 4px 0; }
+        
+        .nav-icon-wrapper { position: relative; display: inline-flex; justify-content: center; }
+        .nav-item .icon { display: flex; align-items: center; justify-content: center; width: 46px; height: 30px; border-radius: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: #94a3b8; }
+        .nav-item .icon svg { width: 20px; height: 20px; stroke-width: 1.8; transition: 0.3s; } 
+        
+        .nav-item .text { font-size: 0.65rem; font-weight: 600; opacity: 0.8; transition: 0.3s; letter-spacing: -0.2px; }
+        
+        /* KHÔI PHỤC MÀU XANH DƯƠNG TƯƠI SÁNG (ACTIVE) */
+        .nav-item.active { color: #0284c7; }
+        .nav-item.active .icon { background-color: #e0f2fe; color: #0284c7; }
+        .nav-item.active .icon svg { stroke-width: 2.5; transform: scale(1.05); }
+        .nav-item.active .text { opacity: 1; font-weight: 800; color: #0284c7; }
+
+        /* Vị trí chấm đỏ thông báo */
+        .nav-badge { position: absolute; top: -3px; right: 0px; background: #e53935; color: white; font-size: 0.65rem; font-weight: 800; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 2px solid #ffffff; opacity: 0; transform: scale(0.5); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 4px rgba(229, 57, 53, 0.2); padding: 0 4px; pointer-events: none; z-index: 2; }
+        .nav-badge.show { opacity: 1; transform: scale(1); }
 
         /* Danh sách Nợ & Tìm Kiếm & Avatar & Time Chips */
         .search-sort-container { display: flex; gap: 10px; margin-bottom: 10px;}
@@ -349,6 +370,13 @@
         .cart-swipe-content { position: relative; z-index: 2; background: #fff; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); will-change: transform; width: 100%; }
         /* Tắt border cũ vì đã chuyển sang wrapper */
         .cart-swipe-content.selected-tag { border-bottom: none; padding-left: 0; padding-right: 0; }
+		/* --- HIỆU ỨNG ẨN HIỆN & CHẤM ĐỎ NOTIFICATION --- */
+        .bottom-nav { transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.3s !important; }
+        .bottom-nav.hidden { transform: translate(-50%, 150%) !important; } /* Trượt xuống dưới đáy màn hình */
+
+        .nav-icon-wrapper { position: relative; display: inline-flex; }
+        .nav-badge { position: absolute; top: -2px; right: -6px; background: #e53935; color: white; font-size: 0.65rem; font-weight: 800; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 2px solid white; opacity: 0; transform: scale(0.5); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 4px rgba(229, 57, 53, 0.3); padding: 0 4px; pointer-events: none; z-index: 2; }
+        .nav-badge.show { opacity: 1; transform: scale(1); }
 </style>
 </head>
 <body>
@@ -360,8 +388,8 @@
     <div class="header" id="mainHeader">
         <div class="header-left">
             <div>
-                <h1 id="headerTitle">Sổ Ghi Nợ</h1>
-                <div class="header-subtitle" id="headerSubtitle">Xôi & Đồ Uống</div>
+                <h1 id="headerTitle">SỔ GHI NỢ</h1>
+                <div class="header-subtitle" id="headerSubtitle">Xôi & đồ uống</div>
             </div>
         </div>
         <div class="header-date" id="currentDateDisplay">Hôm nay</div>
@@ -528,7 +556,7 @@
 
     <!-- TAB 4: ADMIN -->
     <div id="tab-menu" class="tab-content">
-        <div style="font-size: 1.3rem; font-weight: 900; color: #1f2937; margin-bottom: 20px;">ADMIN</div>
+        <div style="font-size: 1.3rem; font-weight: 900; color: #1f2937; margin-bottom: 20px;">THÊM</div>
         <div style="background: white; border-radius: 12px; border: 1px solid #f3f4f6; overflow: hidden;">
             <div id="openMenuManagerBtn" style="padding: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-weight: 500;">☰ Quản lý danh mục món</span>
@@ -768,11 +796,44 @@
 </div>
 
 <!-- THANH ĐIỀU HƯỚNG ĐÁY (4 TABS) -->
-<div class="bottom-nav">
-    <div class="nav-item active" data-target="tab-input"><span class="icon">✍️</span><span class="text">Nhập liệu</span></div>
-    <div class="nav-item" data-target="tab-list"><span class="icon">📋</span><span class="text">Danh sách</span></div>
-    <div class="nav-item" data-target="tab-history"><span class="icon">🕒</span><span class="text">Lịch sử</span></div>
-    <div class="nav-item" data-target="tab-menu"><span class="icon">⚙️</span><span class="text">Admin</span></div>
+<div class="bottom-nav" id="mainBottomNav">
+    <div class="nav-item active" data-target="tab-input">
+        <span class="nav-icon-wrapper">
+            <span class="icon">
+                <!-- Icon Cây Bút (Ghi nợ) -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            </span>
+        </span>
+        <span class="text">Ghi Nợ</span>
+    </div>
+    <div class="nav-item" data-target="tab-list">
+        <span class="nav-icon-wrapper">
+            <span class="icon">
+                <!-- Icon Cuốn Sổ (Sổ Nợ) -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </span>
+            <span id="navDebtBadge" class="nav-badge">0</span>
+        </span>
+        <span class="text">Sổ Nợ</span>
+    </div>
+    <div class="nav-item" data-target="tab-history">
+        <span class="nav-icon-wrapper">
+            <span class="icon">
+                <!-- Icon Dấu Tick Tròn (Đã Thu) -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </span>
+        </span>
+        <span class="text">Đã Thu</span>
+    </div>
+    <div class="nav-item" data-target="tab-menu">
+        <span class="nav-icon-wrapper">
+            <span class="icon">
+                <!-- Icon Grid (Menu) -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
+            </span>
+        </span>
+        <span class="text">Menu</span>
+    </div>
 </div>
 
 <!-- Firebase Scripts -->
@@ -823,6 +884,12 @@
     
     navItems.forEach(item => {
         item.addEventListener('click', () => {
+            // Tính năng phụ: Chạm 2 lần để cuộn lên đầu trang
+            if (item.classList.contains('active')) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
             navItems.forEach(n => n.classList.remove('active'));
             tabContents.forEach(t => t.classList.remove('active'));
             item.classList.add('active');
@@ -831,19 +898,25 @@
             document.getElementById(targetTab).classList.add('active');
             document.getElementById('mainHeader').style.display = targetTab === 'tab-menu' ? 'none' : 'flex';
             
-            // --- ĐỔI TÊN TIÊU ĐỀ THEO TAB (KHÔNG ICON) ---
+            // --- ĐỔI TÊN TIÊU ĐỀ & ĐỔI MÀU NỀN THANH TAB (DYNAMIC THEME) ---
             const headerTitle = document.getElementById('headerTitle');
             const headerSubtitle = document.getElementById('headerSubtitle');
+            const bottomNav = document.getElementById('mainBottomNav');
             
             if (targetTab === 'tab-input') {
-                headerTitle.textContent = 'Sổ Ghi Nợ';
+                headerTitle.textContent = 'Sổ ghi nợ';
                 headerSubtitle.style.display = 'block'; 
+                bottomNav.style.backgroundColor = 'rgba(255, 255, 255, 0.85)'; // Trắng thanh khiết
             } else if (targetTab === 'tab-list') {
-                headerTitle.textContent = 'Danh Sách Nợ';
+                headerTitle.textContent = 'Danh sách nợ';
                 headerSubtitle.style.display = 'none';  
+                bottomNav.style.backgroundColor = 'rgba(240, 248, 255, 0.85)'; // Xanh dương nhạt (Alice Blue)
             } else if (targetTab === 'tab-history') {
-                headerTitle.textContent = 'Lịch Sử Thu';
+                headerTitle.textContent = 'Lịch sử thu';
                 headerSubtitle.style.display = 'none';  
+                bottomNav.style.backgroundColor = 'rgba(232, 245, 233, 0.85)'; // Xanh lá nhạt (Mint)
+            } else if (targetTab === 'tab-menu') {
+                bottomNav.style.backgroundColor = 'rgba(245, 245, 245, 0.9)'; // Xám nhạt
             }
             
             window.scrollTo({ top: 0 });
@@ -1029,9 +1102,12 @@
         const hiddenInput = document.getElementById('hiddenItemsString');
         if (selectedTagsArray.length === 0) {
             container.innerHTML = `
-                <div class="empty-cart">
-                    <div class="empty-cart-icon">🛒</div>
-                    <div class="empty-cart-text">Giỏ hàng đang trống.<br>Chạm vào thực đơn bên dưới để thêm món!</div>
+                <div class="empty-cart" style="padding: 35px 10px; opacity: 0.7;">
+                    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 600; margin-top: 12px; letter-spacing: 0.5px;">TRỐNG</div>
                 </div>`;
             hiddenInput.value = "";
             autoCalculateTotal(); return;
@@ -1323,7 +1399,14 @@
         document.getElementById('dashCountDebt').textContent = `${cDebt} khách`;
         document.getElementById('dashTotalPrepaid').textContent = formatCurrency(tPrepaid);
         document.getElementById('dashCountPrepaid').textContent = `${cPrepaid} khách`;
-        
+        // CẬP NHẬT CHẤM ĐỎ TRÊN THANH ĐIỀU HƯỚNG
+        const badge = document.getElementById('navDebtBadge');
+        if (cDebt > 0) {
+            badge.textContent = cDebt > 99 ? '99+' : cDebt;
+            badge.classList.add('show');
+        } else {
+            badge.classList.remove('show');
+        }
         updateAnalytics();
         renderDebtList(); 
     });
@@ -1611,9 +1694,12 @@
         const container = document.getElementById('editSelectedTagsContainer');
         if (editTagsArray.length === 0) {
             container.innerHTML = `
-                <div class="empty-cart">
-                    <div class="empty-cart-icon">🛒</div>
-                    <div class="empty-cart-text">Giỏ hàng đang trống.<br>Hãy chọn lại món nhé!</div>
+                <div class="empty-cart" style="padding: 35px 10px; opacity: 0.7;">
+                    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 600; margin-top: 12px; letter-spacing: 0.5px;">TRỐNG</div>
                 </div>`;
             autoCalculateEditTotal(); return;
         }
@@ -1913,6 +1999,22 @@
             e.currentTarget.style.transform = `translateX(0)`;
         }
     };
+	// --- TỰ ĐỘNG ẨN/HIỆN THANH ĐIỀU HƯỚNG KHI CUỘN ---
+    let lastScrollY = window.scrollY;
+    const bottomNav = document.getElementById('mainBottomNav');
+    
+    window.addEventListener('scroll', () => {
+        const currentScrollY = window.scrollY;
+        // Nếu cuộn xuống (và không phải ở trên cùng) -> Ẩn thanh Tab
+        if (currentScrollY > lastScrollY && currentScrollY > 50) {
+            bottomNav.classList.add('hidden');
+        } 
+        // Nếu cuộn lên ngược lại -> Hiện thanh Tab
+        else {
+            bottomNav.classList.remove('hidden');
+        }
+        lastScrollY = currentScrollY;
+    }, { passive: true });
 </script>
 </body>
 </html>
