@@ -7,6 +7,8 @@
     <title>Sổ ghi nợ</title>
     <!-- Thư viện tạo ảnh Hóa Đơn -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Thư viện Kéo thả Mượt mà (SortableJS) -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
         /* --- CSS BIẾN & CƠ BẢN --- */
         :root {
@@ -416,6 +418,28 @@
             font-weight: 500;
             color: #a1a1aa;
         }
+		/* =================================================== */
+        /* HIỆU ỨNG KÉO THẢ (DRAG & DROP) CHO MENU             */
+        /* =================================================== */
+        .menu-row-item {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: grab; /* Đổi con trỏ chuột thành hình bàn tay */
+        }
+        .menu-row-item:active {
+            cursor: grabbing;
+        }
+        /* Hiệu ứng làm mờ món đang được kéo đi */
+        .menu-row-item.dragging {
+            opacity: 0.4;
+            transform: scale(0.98);
+            box-shadow: none !important;
+        }
+        /* Hiệu ứng nổi bật vùng chuẩn bị thả món xuống */
+        .menu-row-item.drag-over {
+            border: 2px dashed var(--blue) !important;
+            background: #f0f9ff !important;
+            transform: scale(1.02);
+        }
 </style>
 </head>
 <body>
@@ -432,8 +456,17 @@
             </div>
         </div>
         
-        <!-- Cập nhật: Chứa ngày tháng VÀ nút 3 chấm -->
-        <div class="header-right" style="position: relative; display: flex; align-items: center;">
+       <!-- Cập nhật: Chứa Nút Dark Mode, Ngày tháng VÀ nút 3 chấm -->
+        <div class="header-right" style="position: relative; display: flex; align-items: center; gap: 8px;">
+            
+            <!-- Nút Bật/Tắt Dark Mode (Animation Trượt/Xoay) -->
+            <button type="button" id="themeToggleBtn" class="theme-toggle-btn" title="Chuyển chế độ Sáng/Tối">
+                <!-- Icon Mặt trời -->
+                <svg id="sunIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <!-- Icon Mặt trăng -->
+                <svg id="moonIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+
             <div class="header-date" id="currentDateDisplay">Hôm nay</div>
             
             <!-- Nút 3 chấm (Mặc định ẩn) -->
@@ -883,6 +916,120 @@
     .del-pro-footer { padding: 14px 16px 16px 16px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: center; }
     .del-pro-cancel { width: 100%; padding: 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; font-weight: 700; color: #64748b; font-size: 0.95rem; cursor: pointer; transition: 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
     .del-pro-cancel:active { background: #f1f5f9; transform: scale(0.97); }
+	
+	/* =================================================== */
+        /* SKELETON LOADING & EMPTY STATE                      */
+        /* =================================================== */
+        
+        /* Hiệu ứng sóng lấp lánh (Shimmer) */
+        @keyframes shimmer { 
+            0% { background-position: -1000px 0; } 
+            100% { background-position: 1000px 0; } 
+        }
+        .skeleton-box { 
+            height: 85px; 
+            background: #f6f7f8; 
+            background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%); 
+            background-repeat: no-repeat; 
+            animation: shimmer 1.5s infinite linear; 
+            border-radius: 14px; 
+            margin-bottom: 12px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        /* Giao diện trạng thái trống (Empty State) */
+        .empty-state { 
+            text-align: center; 
+            padding: 50px 20px; 
+            animation: fadeIn 0.5s ease; 
+        }
+        .empty-state-icon { 
+            font-size: 4rem; 
+            opacity: 0.7; 
+            margin-bottom: 15px; 
+            filter: grayscale(0.5); /* Giảm bớt độ rực rỡ để không chói mắt */
+        }
+		/* =================================================== */
+        /* DARK MODE (CHẾ ĐỘ TỐI CHUYÊN NGHIỆP)                */
+        /* =================================================== */
+        
+        /* 1. Ghi đè biến màu sắc toàn cục */
+        body.dark-theme {
+            --bg-main: #0f172a;       /* Nền xanh đen sâu thẳm */
+            --white: #1e293b;         /* Nền các thẻ Card */
+            --text-dark: #f8fafc;     /* Chữ màu trắng sáng */
+            --coffee-dark: #1e293b; 
+            --coffee-medium: #334155;
+        }
+
+        /* 2. Đảo màu các thành phần giao diện */
+        body.dark-theme .header h1 { color: #f8fafc; }
+        body.dark-theme .header-subtitle { color: #94a3b8; }
+        body.dark-theme .header-date { background: #334155; color: #f8fafc; border-color: #475569; }
+        
+        /* Ô nhập liệu */
+        body.dark-theme .form-control, 
+        body.dark-theme .search-input,
+        body.dark-theme .tags-input-container { background: #0f172a; border-color: #334155; color: #f8fafc; }
+        body.dark-theme .form-control:focus, body.dark-theme .search-input:focus { border-color: #38bdf8; }
+        body.dark-theme input::placeholder { color: #64748b; }
+        
+        /* Các khối Card & Khối trượt */
+        body.dark-theme .grouped-card, 
+        body.dark-theme .swipe-content, 
+        body.dark-theme .chip,
+        body.dark-theme .modal-box,
+        body.dark-theme .bottom-sheet { background: #1e293b; border-color: #334155; color: #f8fafc; }
+        
+        body.dark-theme .grouped-item { border-bottom-color: #334155; }
+        body.dark-theme .vertical-divider { background: #334155; }
+        
+        /* Chữ trong danh sách */
+        body.dark-theme .debt-info h3, 
+        body.dark-theme .chip-name, 
+        body.dark-theme .tag-name,
+        body.dark-theme .sheet-item { color: #f8fafc; }
+        body.dark-theme .debt-details-box { background: #0f172a; border-color: #334155; }
+        
+        /* Thanh điều hướng đáy (Bottom Nav) */
+        body.dark-theme .bottom-nav { background-color: rgba(30, 41, 59, 0.9) !important; border-color: #334155; }
+        body.dark-theme .nav-item .icon { color: #94a3b8; }
+        body.dark-theme .nav-item.active .icon { background-color: #0c4a6e; color: #38bdf8; }
+        body.dark-theme .nav-item.active .text { color: #38bdf8; }
+        
+        /* Nút phân loại (Segment Control) */
+        body.dark-theme .segment-control, body.dark-theme .smart-time-container { background: #0f172a; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
+        body.dark-theme .segment-btn, body.dark-theme .btn-smart-time { color: #94a3b8; }
+        body.dark-theme .segment-btn.active { background: #1e293b; color: var(--blue); }
+        body.dark-theme .btn-smart-time.is-active { background: #1e293b; color: var(--blue); }
+        
+        /* Đảo màu Popup Xóa Lịch Sử (FinTech Style) */
+        body.dark-theme .del-pro-box { background: #1e293b; }
+        body.dark-theme .del-pro-header { background: #450a0a; border-color: #7f1d1d; }
+        body.dark-theme .del-pro-icon { background: #7f1d1d; color: #fca5a5; border-color: #450a0a; }
+        body.dark-theme .del-pro-title { color: #fecaca; }
+        body.dark-theme .del-pro-desc { color: #fca5a5; }
+        body.dark-theme .del-pro-content { background: #1e293b; }
+        body.dark-theme .del-pro-btn { color: #e2e8f0; border-bottom-color: #334155; }
+        body.dark-theme .del-pro-btn:active { background: #0f172a; }
+        body.dark-theme .del-pro-btn-icon { background: #334155; color: #94a3b8; }
+        body.dark-theme .del-pro-footer { background: #0f172a; border-top-color: #334155; }
+        body.dark-theme .del-pro-cancel { background: #1e293b; color: #e2e8f0; border-color: #334155; }
+        
+        body.dark-theme .empty-state h3 { color: #f8fafc !important; }
+		/* Nút Chuyển Đổi Giao Diện Sáng/Tối (Theme Toggle) */
+        .theme-toggle-btn { position: relative; width: 36px; height: 36px; border-radius: 50%; border: none; background: #f1f5f9; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); transition: background 0.3s; -webkit-tap-highlight-color: transparent; }
+        .theme-toggle-btn:active { transform: scale(0.9); }
+        .theme-toggle-btn svg { position: absolute; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        
+        /* Trạng thái Sáng (Light Mode) */
+        #sunIcon { transform: translateY(0) rotate(0); opacity: 1; }
+        #moonIcon { transform: translateY(30px) rotate(-90deg); opacity: 0; }
+        
+        /* Trạng thái Tối (Dark Mode) */
+        body.dark-theme .theme-toggle-btn { background: #334155; color: #fbbf24; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
+        body.dark-theme #sunIcon { transform: translateY(-30px) rotate(90deg); opacity: 0; }
+        body.dark-theme #moonIcon { transform: translateY(0) rotate(0); opacity: 1; }
 </style>
 
 <div class="modal-overlay" id="deleteHistoryModal">
@@ -1014,6 +1161,22 @@
     }
 
     // --- 1. UI UTILS ---
+	// ==========================================
+    // LOGIC BẬT/TẮT DARK MODE (ĐÃ NÂNG CẤP ANIMATION CSS)
+    // ==========================================
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const body = document.body;
+
+    // 1. Kiểm tra bộ nhớ
+    if (localStorage.getItem('debtAppTheme') === 'dark') {
+        body.classList.add('dark-theme');
+    }
+
+    // 2. Lắng nghe click
+    themeToggleBtn.addEventListener('click', () => {
+        body.classList.toggle('dark-theme');
+        localStorage.setItem('debtAppTheme', body.classList.contains('dark-theme') ? 'dark' : 'light');
+    });
     const formatCurrency = (number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
 
     function getAvatarColor(char) {
@@ -1446,13 +1609,17 @@
             const data = snapshot.val();
             currentMenuData = Object.keys(data).map(key => ({ id: key, ...data[key] })).sort((a,b) => a.timestamp - b.timestamp);
             renderMenuChips();
-            currentMenuData.forEach(item => {
+            // DÁN ĐOẠN CODE NÀY VÀO CHỖ VỪA XÓA
+        currentMenuData.forEach(item => {
                 const row = document.createElement('div');
                 const catLabel = item.category === 'food' ? '🍛 Đồ ăn' : (item.category === 'drink' ? '🍹 Đồ uống' : '🏷️ Khác');
                 
-                row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 14px 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid #f0f0f0; box-shadow: 0 4px 10px rgba(0,0,0,0.02);';
+                row.className = 'menu-row-item';
+                row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid #f0f0f0; box-shadow: 0 4px 10px rgba(0,0,0,0.02);';
+                row.dataset.id = item.id; 
+
                 row.innerHTML = `
-                    <div style="display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; flex-direction:column; gap:6px; flex: 1;">
                         <div style="font-weight:700; color:#1f2937; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
                             ${item.name} ${item.isBestSeller ? '<span style="font-size: 0.9rem; color: #f59e0b; margin-left: 4px;" title="Bán chạy">★</span>' : ''}
                         </div>
@@ -1461,12 +1628,37 @@
                             <span style="font-size: 0.7rem; color: #6b7280; background: #f3f4f6; padding: 2px 6px; border-radius: 6px; font-weight: 600;">${catLabel}</span>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button style="background: #f3f4f6; color: #4b5563; border: none; padding: 8px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.2s;" onclick="openEditModal('${item.id}')">Sửa</button>
-                        <button style="background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.2s;" onclick="if(confirm('Xóa món này?')) db.ref('menuItems/${item.id}').remove()">Xóa</button>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <button style="background: #f3f4f6; color: #4b5563; border: none; padding: 8px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer;" onclick="openEditModal('${item.id}')">Sửa</button>
+                        <button style="background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer;" onclick="if(confirm('Xóa món này?')) db.ref('menuItems/${item.id}').remove()">Xóa</button>
+                        <!-- NÚT CẦM ĐỂ KÉO THẢ (DRAG HANDLE) -->
+                        <div class="drag-handle" style="color: #94a3b8; font-size: 1.6rem; padding: 0 5px 0 10px; cursor: grab; display: flex; align-items: center; justify-content: center; user-select: none;">≡</div>
                     </div>
                 `;
                 managerList.appendChild(row);
+            });
+
+            // ============================================================
+            // FIX: HỦY BỎ BẢN SAO CŨ TRƯỚC KHI TẠO MỚI + THÊM HANDLE
+            // ============================================================
+            if (window.menuSortableInstance) {
+                window.menuSortableInstance.destroy();
+            }
+            
+            window.menuSortableInstance = Sortable.create(managerList, {
+                animation: 250,             
+                ghostClass: 'dragging',     
+                handle: '.drag-handle',   // BẮT BUỘC CÓ: Chỉ cho phép kéo khi chạm vào icon ≡ (Chống lỗi cuộn trang trên Điện thoại)
+                onEnd: function (evt) {
+                    const newOrderIds = Array.from(managerList.children).map(row => row.dataset.id);
+                    const sortedTimestamps = currentMenuData.map(i => i.timestamp).sort((a,b) => a - b);
+                    
+                    let updates = {};
+                    newOrderIds.forEach((id, index) => {
+                        updates[`menuItems/${id}/timestamp`] = sortedTimestamps[index];
+                    });
+                    db.ref().update(updates).then(() => showToast("Đã lưu thứ tự mới!"));
+                }
             });
         }
     });
@@ -1604,6 +1796,9 @@
         
         renderDebtList(); // Vẽ lại danh sách theo bộ lọc
     };
+	// KÍCH HOẠT SKELETON CHO SỔ NỢ VÀ LỊCH SỬ TRƯỚC KHI TẢI DỮ LIỆU
+    document.getElementById('debtList').innerHTML = '<div class="skeleton-box"></div><div class="skeleton-box"></div><div class="skeleton-box"></div>';
+    document.getElementById('historyList').innerHTML = '<div class="skeleton-box"></div><div class="skeleton-box"></div><div class="skeleton-box"></div>';
     debtsRef.on('value', (snapshot) => {
         currentDebtsMap = {}; currentDebtsArray = [];
         let tDebt = 0, cDebt = 0, tPrepaid = 0, cPrepaid = 0;
@@ -1658,7 +1853,12 @@
         else if (sortMode === 'az') filteredArray.sort((a, b) => a.name.localeCompare(b.name));
 
         if (filteredArray.length === 0) {
-            list.innerHTML = '<p style="text-align:center; color:#888; margin-top:30px; font-size: 0.9rem;">Không có khoản nợ nào khớp.</p>';
+            list.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🌵</div>
+                    <h3 style="color: #475569; font-size: 1.1rem; margin: 0 0 6px 0;">Chưa có dữ liệu</h3>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Danh sách trống hoặc không tìm thấy khách hàng.</p>
+                </div>`;
             return;
         }
 
@@ -2053,8 +2253,13 @@
         });
 
         if (filteredHistory.length === 0) {
-            list.innerHTML = '<p style="text-align:center; color:#888; margin-top:30px; font-size: 0.9rem;">Không có lịch sử thu tiền.</p>';
-            document.getElementById('totalHistoryDisplay').textContent = '0 ₫';
+            list.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🍃</div>
+                    <h3 style="color: #475569; font-size: 1.1rem; margin: 0 0 6px 0;">Chưa có lịch sử thu</h3>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Những khoản thanh toán hoàn tất sẽ nằm ở đây.</p>
+                </div>`;
+            document.getElementById('totalHistoryDisplay').textContent = '0đ';
             document.getElementById('totalHistoryCountDisplay').textContent = '0 hóa đơn';
             return;
         }
